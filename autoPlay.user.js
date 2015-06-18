@@ -466,24 +466,32 @@ function MainLoop() {
 
 	if (!isAlreadyRunning) {
 		isAlreadyRunning = true;
-
-		if (level % 100 == 0) {
-			// On a WH level, jump everyone to lane 0, unless there is a boss there, in which case jump to lane 1.
-			var targetLane = 0;
-			// Check lane 0, enemy 0 to see if it's a boss
-			var enemyData = s().GetEnemy(0, 0).m_data;
-			if(typeof enemyData !== "undefined"){
-				var enemyType = enemyData.type;
-				if(enemyType == ENEMY_TYPE.BOSS) {
-					advLog('In lane 0, there is a boss, avoiding', 4);
-					targetLane = 1;
-				}
+		
+		if (level % 100 == 0 ) {
+			/*
+			This section has been commented out intentionally, it is here should we ever choose to implement this feature.
+			This is not currently working.
+			It was going to swap to lane 1, then check if there was a boss there.  If so, change to lane 2.
+			Didnt want to be changing lanes forever.
+			Staying in the boss lane is fine, assuming no one using the script is clicking
+			Considered checking flags in various ways to see if had already done this check that level
+			
+			if( s().m_rgPlayerData.current_lane == 0 ) {
+				enemyData = s().GetEnemy(s().m_rgPlayerData.current_lane, s().m_rgPlayerData.target).m_data;
+					if(typeof enemyData !== "undefined"){
+						var enemyType = enemyData.type;
+						if(enemyType == ENEMY_TYPE.BOSS) {
+							advLog('In lane one, there is a boss, moving', 4);
+							s().TryChangeLane(1);
+						}
+					}	
+			
+			} else{
+				s().TryChangeLane(0); // put everyone in the same lane
 			}
-			if( s().m_rgPlayerData.current_lane != targetLane ) {
-				advLog('Moving player to wormhole lane ' + targetLane, 4);
-				s().TryChangeLane(targetLane); // put everyone in the same lane
-			}
+			*/
 
+			goToLaneWithBestTarget(level);
 		} else {
 			goToLaneWithBestTarget(level);
 		}
