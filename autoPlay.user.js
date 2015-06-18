@@ -686,6 +686,15 @@ function useAbilitiesAt100() {
 	if (wormholeOn100 && !w.SteamDB_Wormhole_Timer) {
 		advLog("At level % 100 = 0, forcing the use of wormholes nonstop", 2);
 		w.SteamDB_Wormhole_Timer = w.setInterval(function(){
+			if ((s().m_rgGameData.level + 1) % 100 !== 0) {
+				// We're not on a *00 level anymore, stop!!
+				w.clearInterval(w.SteamDB_Wormhole_Timer);
+				w.SteamDB_Wormhole_Timer = false;
+				
+				//Clear queue! don't overflow it!
+				clearAbilityQueue(ABILITIES.WORMHOLE);
+				return;
+			}
 			if (bHaveItem(ABILITIES.WORMHOLE)) triggerAbility(ABILITIES.WORMHOLE); //wormhole
 		}, 500);
 	}
