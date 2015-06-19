@@ -1,5 +1,6 @@
 #!/bin/bash
-SCRIPT=autoPlay.user.js
+SCRIPT=autoPlay.noUpdate.user.js
+LOADER=autoplay.user.js
 
 # Too many arguments, show usage
 if [ $# -gt 1 ]; then
@@ -32,6 +33,7 @@ echo "New Version: $NEW_VERSION"
 OLD_REGEX=`echo $OLD_VERSION | sed 's/\./\\\\./g'`
 NEW_REGEX=`echo $NEW_VERSION | sed 's/\./\\\\./g'`
 sed -i '' "s/$OLD_REGEX/$NEW_REGEX/g" $SCRIPT
+sed -i '' "s/$OLD_REGEX/$NEW_REGEX/g" $LOADER
 
 cat << EOF > version.json
 {
