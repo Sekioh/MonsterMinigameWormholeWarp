@@ -2,7 +2,7 @@
 // @name Ye Olde Megajump (Auto-updating)
 // @namespace https://github.com/YeOldeWH/MonsterMinigameWormholeWarp
 // @description A script that runs the Steam Monster Minigame for you.  Now with megajump.  Brought to you by the Ye Olde Wormhole Schemers and DannyDaemonic
-// @version 5.0.1.6
+// @version 5.0.1.7
 // @match *://steamcommunity.com/minigame/towerattack*
 // @match *://steamcommunity.com//minigame/towerattack*
 // @grant       GM_xmlhttpRequest
@@ -40,11 +40,14 @@ function do_check () {
                 if (old_version === false) {
                     // First time reading the JSON
                     old_version = version_data.Version;
+
+                    // Display the version
                     var versionDiv = document.createElement ("div");
                     versionDiv.innerHTML = '<div style="' +
                       'color: white; position: fixed; right: 2em; ' + 
                       'bottom: 1em; z-index: 9999;">Version ' + old_version + '</div>';
-                    
+                    document.body.appendChild (versionDiv);
+
                     // Check again in 5 minutes
                     x.setTimeout (do_check, 5 * 60 * 1000);
                 } else {
