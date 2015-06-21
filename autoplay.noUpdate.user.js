@@ -438,7 +438,7 @@ function addExtraUI() {
 	$J("#settings").append('<div id="elementLock_toggle" class="toggle"><span class="value enabled"></span><span class="title">Element Locking: </span></div>');
 	$J("#settings").append('<div id="chen_toggle" class="toggle"><span class="value disabled"></span><span class="title">Honk Honk? </span></div>');
 	
-	$J("#settings").append('<div><span class="toggle">Lock Level: <input type="number" id="logLevelInput" value="'+logLevel+'" min=0 max=5></input></span></div>');
+	$J("#settings").append('<div><span class="toggle">Log Level: <input type="number" id="logLevelInput" value="'+logLevel+'" min=0 max=5></input></span></div>');
 	
 	$J("#logLevelInput").change(function() {
 		logLevel = $J('#logLevelInput').val();
