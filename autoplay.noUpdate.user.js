@@ -188,9 +188,10 @@ disableParticles();
 // Define custom getters for document.hidden and the prefixed versions, so the game
 // doesn't stop ticking in the background.
 if (Object.defineProperty) {
-  var props = ['hidden', 'webkitHidden', 'mozHidden', 'msHidden'];
-  for (var i = 0; i < props.length; ++i)
-    Object.defineProperty(document, props[i], {value: false});
+	var props = ['hidden', 'webkitHidden', 'mozHidden', 'msHidden'];
+	for (var i = 0; i < props.length; ++i) {
+		Object.defineProperty(document, props[i], {value: false});
+	}
 }
 
 if(!getPreferenceBoolean("alertShown", false)) {
@@ -312,13 +313,13 @@ function firstRun() {
 		document.body.style.backgroundPosition = "0 0";
 	}
 
-	originalUpdateLog = CUI.prototype.UpdateLog;
+	originalUpdateLog = w.CUI.prototype.UpdateLog;
 
 	// Set to match preferences
 	toggleTrackTroll();
 
 	// Add cool background
-	$J('body.flat_page.game').css('background-image', 'url(http://i.imgur.com/P8TB236.jpg)');
+	w.$J('body.flat_page.game').css('background-image', 'url(http://i.imgur.com/P8TB236.jpg)');
 
 	// Add "players in game" label
 	var titleActivity = document.querySelector( '.title_activity' );
@@ -383,28 +384,34 @@ var localUpdateLog = function( rgLaneLog ) {
 	var abilities = this.m_Game.m_rgTuningData.abilities;
 	var level = getGameLevel();
 
-	if( !this.m_Game.m_rgPlayerTechTree ) return;
+	if( !this.m_Game.m_rgPlayerTechTree ) {
+		return;
+	}
 
 	var nHighestTime = 0;
 
 	for( var i=rgLaneLog.length-1; i >= 0; i--) {
 		var rgEntry = rgLaneLog[i];
 
-		if( isNaN( rgEntry.time ) ) rgEntry.time = this.m_nActionLogTime + 1;
+		if( isNaN( rgEntry.time ) ) {
+			rgEntry.time = this.m_nActionLogTime + 1;
+		}
 
-		if( rgEntry.time <= this.m_nActionLogTime ) continue;
+		if( rgEntry.time <= this.m_nActionLogTime ) {
+			continue;
+		}
 
 		// If performance concerns arise move the level check out and swap switch for if.
 		switch( rgEntry.type ) {
 			case 'ability':
 				if ( (level % 100 !== 0 && [26].indexOf(rgEntry.ability) > -1) || (level % 100 === 0 && [10, 11, 12, 15, 20].indexOf(rgEntry.ability) > -1) ) {
 					var ele = this.m_eleUpdateLogTemplate.clone();
-					$J(ele).data('abilityid', rgEntry.ability);
-					$J('.name', ele).text(rgEntry.actor_name).attr("style", "color: red; font-weight: bold;");
-					$J('.ability', ele).text(abilities[rgEntry.ability].name + " on level " + level);
-					$J('img', ele).attr('src', g_rgIconMap['ability_' + rgEntry.ability].icon);
+					w.$J(ele).data('abilityid', rgEntry.ability);
+					w.$J('.name', ele).text(rgEntry.actor_name).attr("style", "color: red; font-weight: bold;");
+					w.$J('.ability', ele).text(abilities[rgEntry.ability].name + " on level " + level);
+					w.$J('img', ele).attr('src', w.g_rgIconMap['ability_' + rgEntry.ability].icon);
 
-					$J(ele).v_tooltip({tooltipClass: 'ta_tooltip', location: 'top'});
+					w.$J(ele).v_tooltip({tooltipClass: 'ta_tooltip', location: 'top'});
 
 					this.m_eleUpdateLogContainer[0].insertBefore(ele[0], this.m_eleUpdateLogContainer[0].firstChild);
 				
@@ -416,10 +423,14 @@ var localUpdateLog = function( rgLaneLog ) {
 				console.log(rgEntry);
 		}
 
-		if(rgEntry.time > nHighestTime) nHighestTime = rgEntry.time;
+		if(rgEntry.time > nHighestTime) {
+			nHighestTime = rgEntry.time;
+		}
 	}
 
-	if( nHighestTime > this.m_nActionLogTime ) this.m_nActionLogTime = nHighestTime;
+	if( nHighestTime > this.m_nActionLogTime ) {
+		this.m_nActionLogTime = nHighestTime;
+	}
 
 	var e = this.m_eleUpdateLogContainer[0];
 	while(e.children.length > 20 ) {
@@ -527,7 +538,7 @@ function MainLoop() {
 			}
 		}
 
-		if (level % 100 == 0) {
+		if (level % 100 === 0) {
 			// On a WH level, jump everyone with wormholes to lane 0, unless there is a boss there, in which case jump to lane 1.
 			var targetLane = 0;
 			// Check lane 0, enemy 0 to see if it's a boss
@@ -563,7 +574,7 @@ function MainLoop() {
 		}
 
 		var timeLeft = getTimeleft(); // Time left in minutes
-		if(level % 100 == 0){
+		if(level % 100 === 0) {
 			useAbilitiesAt100();
 		} else if(timeLeft <= 15) {
 			useAllAbilities();
@@ -612,13 +623,14 @@ function MainLoop() {
 				}
 			}
 
-			var levelsUntilBoss = (CONTROL.rainingRounds - (level % CONTROL.rainingRounds))
+			var levelsUntilBoss = (CONTROL.rainingRounds - (level % CONTROL.rainingRounds));
+
 			if (levelsUntilBoss < 5 && Math.random < (0.9 / levelsUntilBoss)){
 				absoluteCurrentClickRate = clicksOnBossLevel;
 			}
 			
 			//If at the boss level, dont click at all
-			if (level % CONTROL.rainingRounds == 0) {
+			if (level % CONTROL.rainingRounds === 0) {
 				absoluteCurrentClickRate = clicksOnBossLevel;
 			}
 
@@ -703,10 +715,11 @@ function useAutoBadgePurchase() {
 	
 	//Regular users buy ratio
 	
+	var abilityPriorityList;
 	
 	if (likeNewOn100 == 1 && wormholeOn100 == 1) {
 		// High Level, "Waste Not" Users
-		var abilityPriorityList = [
+		abilityPriorityList = [
 			{ id: ABILITIES.WORMHOLE,   ratio: 0.5 },
 			{ id: ABILITIES.LIKE_NEW,   ratio: 1 },
 			{ id: ABILITIES.CRIT,       ratio: 1 },
@@ -715,7 +728,7 @@ function useAutoBadgePurchase() {
 		];
 	} else if (likeNewOn100 == 1) {
 		// Like New Buyers
-		var abilityPriorityList = [
+		abilityPriorityList = [
 			{ id: ABILITIES.WORMHOLE,   ratio: 0 },
 			{ id: ABILITIES.LIKE_NEW,   ratio: 1 },
 			{ id: ABILITIES.CRIT,       ratio: 1 },
@@ -724,7 +737,7 @@ function useAutoBadgePurchase() {
 		];
 	} else {
 		// Regular User Buy Ratio
-		var abilityPriorityList = [
+		abilityPriorityList = [
 			{ id: ABILITIES.WORMHOLE,   ratio: 1 },
 			{ id: ABILITIES.LIKE_NEW,   ratio: 0 },
 			{ id: ABILITIES.CRIT,       ratio: 1 },
@@ -775,7 +788,7 @@ function useAllAbilities() {
 }
 
 function isBossLevel(level) {
-	return level % 100 === 0
+	return level % 100 === 0;
 }
 
 
@@ -818,7 +831,7 @@ function levelsPerSec() {
 	}).map(function(levelInfo) {
 		timeSpentOnBosses += levelInfo.timeTakenInSeconds;
 		levelsGainedFromBosses += levelInfo.levelsGained;
-	})
+	});
 
 	return Math.round(((getGameLevel() - lastLevelTimeTaken.slice(-1).pop().level - levelsGainedFromBosses)
 			/ (s().m_rgGameData.timestamp - lastLevelTimeTaken.slice(-1).pop().timeStarted - timeSpentOnBosses)) * 1000 ) / 1000;
@@ -837,7 +850,9 @@ function useAbilitiesAt100() {
 				w.SteamDB_Wormhole_Timer = false;
 				return;
 			}
-			if (bHaveItem(ABILITIES.WORMHOLE)) triggerAbility(ABILITIES.WORMHOLE); //wormhole
+			if (bHaveItem(ABILITIES.WORMHOLE)) {
+				triggerAbility(ABILITIES.WORMHOLE); //wormhole
+			}
 		}, 1000); //SLOW DOWN. 100ms trigger is causing server to ignore client, primary cause of client desync.
 	}
 	
@@ -1255,10 +1270,8 @@ function autoRefreshPage(autoRefreshMinutes){
 
 function autoRefreshHandler() {
 	// Only skip on % 100 levels when it's been less than the maximum delay specified.
-	if(lastLevelTimeTaken[1].level % 100 === 0 && autoRefreshDuringBossDelayTotal < autoRefreshFirstBossDelay) {
+	if(lastLevelTimeTaken[1].level % 100 === 0) {
 		advLog('Not refreshing (boss level)', 5);
-		autoRefreshDuringBossDelayTotal += autoRefreshFirstBossDelayStep;
-		setTimeout(autoRefreshHandler, autoRefreshFirstBossDelayStep);
 	} else {
 		advLog('Refreshing (not a boss level)', 5);
 		w.location.reload(true);
@@ -1319,9 +1332,9 @@ function toggleTrackTroll(event) {
 	}
 
 	if(value) {
-		CUI.prototype.UpdateLog = localUpdateLog;
+		w.CUI.prototype.UpdateLog = localUpdateLog;
 	} else {
-		CUI.prototype.UpdateLog = originalUpdateLog;
+		w.CUI.prototype.UpdateLog = originalUpdateLog;
 	}
 }
 
@@ -1381,7 +1394,7 @@ function estimateJumps() {
 		}
 	}
 	//During baws round fc
-	if (level % CONTROL.rainingRounds == 0)
+	if (level % CONTROL.rainingRounds === 0)
 	{
 		if (predictLastWormholesUpdate !== wormholesNow)
 		{
@@ -1981,10 +1994,10 @@ function tryUsingAbility(itemId, checkInLane, forceAbility) {
 	var needs_to_be_blocked = false;
 	var two_digit_level = level % 100;
 
-	var needs_to_be_blocked = (BOSS_DISABLED_ABILITIES.indexOf(itemId) != -1);
+	needs_to_be_blocked = (BOSS_DISABLED_ABILITIES.indexOf(itemId) != -1);
 
 	// must not use any damaging ability on boss levels
-	if (two_digit_level == 0 && needs_to_be_blocked) {
+	if (two_digit_level === 0 && needs_to_be_blocked) {
 		return false;
 
 	// Randomly Don't use this ability when we're getting close to the boss
@@ -2009,7 +2022,7 @@ function tryUsingAbility(itemId, checkInLane, forceAbility) {
 function triggerAbility(abilityId) {
 	if (abilityId === ABILITIES.WORMHOLE) {
 		// Fire this bad boy off immediately 
-		g_Server.UseAbilities($J.noop, $J.noop, {requested_abilities: [{ability: ABILITIES.WORMHOLE}]});
+		w.g_Server.UseAbilities(w.$J.noop, w.$J.noop, {requested_abilities: [{ability: ABILITIES.WORMHOLE}]});
 	} else {
 		s().m_rgAbilityQueue.push({'ability': abilityId});
 	}
