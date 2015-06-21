@@ -49,6 +49,9 @@ var autoRefreshMinutes = 15; // Lowering to 15 minutes
 var autoRefreshMinutesRandomDelay = 5; // Lowering to 5 minutes
 var autoRefreshSecondsCheckLoadedDelay = 30;
 
+// Rate of fire for wormholes
+var DialHomeDeviceSpeed = 100;
+
 var predictTicks = 0;
 var predictJumps = 0;
 var predictLastWormholesUpdate = 0;
@@ -304,7 +307,8 @@ function firstRun() {
 		document.body.style.backgroundPosition = "0 0";
 	}
 
-	originalUpdateLog = CUI.prototype.UpdateLog;
+	// Keep Valve's FOR NOW in the event something goes wrong
+	ValveUpdateLoopLogger = CUI.prototype.UpdateLog;
 
 	// Set to match preferences
 	toggleTrackTroll();
@@ -671,11 +675,126 @@ function toggleMusic() {
 	updateToggle("music", !WebStorage.GetLocal('minigame_mutemusic'));
 }
 
-// Valve's update
-var originalUpdateLog = null;
 
-// The trolltrack
-var localUpdateLog = function( rgLaneLog ) {
+// What we want to track
+var enabledAbilityStorage = [
+	26 // Wormholes
+];
+
+// Number of levels to store abilities
+var abilityCutoff = 10;
+
+// Storage array for abilities
+var abilityStorage = {};
+
+// Blackhole issues for level approaching
+var predictMod100Blackhole = 0;
+
+// Calculate wormholes per level, store them
+// Once we reach level > 
+function RecalculateStellarDrift( storage, level, ability ) {
+	if( storage[ability.ability] === "undefined" )
+	{
+		storage[ability.abilty].temporal = {};
+		storage[ability.abilty].count = {};
+	}
+
+
+	if( storage[ability.abilty].temporal[level] === "undefined" ) {
+		storage[ability.abilty].temporal[level] = {};
+		storage[ability.abilty].count[level] = 0;
+	}
+
+	if( storage[ability.abilty].temporal[level] === "undefined") {
+		storage[ability.abilty].temporal[level] = [];
+	}
+
+	if( storage[ability.abilty].temporal[level][ability.actor].indexOf(ability.time) == -1 ) {
+		storage[ability.abilty].temporal[level][ability.actor].push(ability.time);
+		storage[ability.abilty].count[level]++;
+	}
+
+
+}
+
+// Purge old wormholes when we reach level > N
+function EraseFromHistory( storage, level ) {
+	for (var ability in storage) {
+		for (var lvl in storage[ability].temporal) {
+			if( lvl <= (level - abilityCutoff) ) {
+				delete storage[ability].temporal;
+				delete storage[ability].count;
+			}
+		}
+	}
+}
+
+// Valve's loop
+var ValveUpdateLoopLogger = null;
+
+// The trolltracker
+function LocalTrollHunter( rgLaneLog ) {
+	var abilities = this.m_Game.m_rgTuningData.abilities;
+	var level = getGameLevel();
+
+	if( !this.m_Game.m_rgPlayerTechTree ) return;
+
+	var nHighestTime = 0;
+
+	for( var i=rgLaneLog.length-1; i >= 0; i--) {
+		var rgEntry = rgLaneLog[i];
+
+		if( isNaN( rgEntry.time ) ) rgEntry.time = this.m_nActionLogTime + 1;
+
+		if( rgEntry.time <= this.m_nActionLogTime ) continue;
+
+		// TODO: Add troll tracking to disable inertia dampening field.
+
+		// If performance concerns arise move the level check out and swap switch for if.
+		switch( rgEntry.type ) {
+			case 'ability':
+
+				// Log if the time is > last level and the ability loggable
+				if (enabledAbilityStorage.indexOf(rgEntry.ability) > -1) {
+					if( lastLevelTimeTaken[0].timeStarted < rgEntry.time ) {
+						RecalculateStellarDrift(abilityStorage, level, rgEntry);
+					}
+				}
+
+				if ( (level % 100 !== 0 && [26].indexOf(rgEntry.ability) > -1) || (level % 100 === 0 && [10, 11, 12, 15, 20].indexOf(rgEntry.ability) > -1) ) {
+					var ele = this.m_eleUpdateLogTemplate.clone();
+					$J(ele).data('abilityid', rgEntry.ability);
+					$J('.name', ele).text(rgEntry.actor_name).attr("style", "color: red; font-weight: bold;");
+					$J('.ability', ele).text(abilities[rgEntry.ability].name + " on level " + level);
+					$J('img', ele).attr('src', g_rgIconMap['ability_' + rgEntry.ability].icon);
+
+					$J(ele).v_tooltip({tooltipClass: 'ta_tooltip', location: 'top'});
+
+					this.m_eleUpdateLogContainer[0].insertBefore(ele[0], this.m_eleUpdateLogContainer[0].firstChild);
+				
+					advLog(rgEntry.actor_name + " used " + s().m_rgTuningData.abilities[ rgEntry.ability ].name + " on level " + level, 1);
+				}
+				break;
+			default:
+				console.log("Unknown action log type: %s", rgEntry.type);
+				console.log(rgEntry);
+		}
+
+		if(rgEntry.time > nHighestTime) nHighestTime = rgEntry.time;
+	}
+
+	if( nHighestTime > this.m_nActionLogTime ) this.m_nActionLogTime = nHighestTime;
+
+	var e = this.m_eleUpdateLogContainer[0];
+	while(e.children.length > 20 ) {
+		e.children[e.children.length-1].remove();
+	}
+
+	EraseFromHistory(abilityStorage, level);
+};
+
+// The non-trolltracker (keep this simple)
+function LocalLazyUpdateLoop( rgLaneLog ) {
 	var abilities = this.m_Game.m_rgTuningData.abilities;
 	var level = getGameLevel();
 
@@ -693,19 +812,20 @@ var localUpdateLog = function( rgLaneLog ) {
 		// If performance concerns arise move the level check out and swap switch for if.
 		switch( rgEntry.type ) {
 			case 'ability':
-				if ( (level % 100 !== 0 && [26].indexOf(rgEntry.ability) > -1) || (level % 100 === 0 && [10, 11, 12, 15, 20].indexOf(rgEntry.ability) > -1) ) {
-					var ele = this.m_eleUpdateLogTemplate.clone();
-					$J(ele).data('abilityid', rgEntry.ability);
-					$J('.name', ele).text(rgEntry.actor_name).attr("style", "color: red; font-weight: bold;");
-					$J('.ability', ele).text(abilities[rgEntry.ability].name + " on level " + level);
-					$J('img', ele).attr('src', g_rgIconMap['ability_' + rgEntry.ability].icon);
-
-					$J(ele).v_tooltip({tooltipClass: 'ta_tooltip', location: 'top'});
-
-					this.m_eleUpdateLogContainer[0].insertBefore(ele[0], this.m_eleUpdateLogContainer[0].firstChild);
-				
-					advLog(rgEntry.actor_name + " used " + getScene().m_rgTuningData.abilities[ rgEntry.ability ].name + " on level " + level, 1);
+				// Log if the time is > last level and the ability loggable
+				if (enabledAbilityStorage.indexOf(rgEntry.ability) > -1) {
+					if( lastLevelTimeTaken[0].timeStarted < rgEntry.time ) {
+						RecalculateStellarDrift(abilityStorage, level, rgEntry);
+					}
 				}
+
+				var ele = this.m_eleUpdateLogTemplate.clone();
+				$J(ele).data('abilityid', rgEntry.ability);
+				$J('.name', ele).text(rgEntry.actor_name);
+				$J('.ability', ele).text(abilities[rgEntry.ability].name);
+				$J('img', ele).attr('src', g_rgIconMap['ability_' + rgEntry.ability].icon);
+				$J(ele).v_tooltip({tooltipClass: 'ta_tooltip', location: 'top'});
+				this.m_eleUpdateLogContainer[0].insertBefore(ele[0], this.m_eleUpdateLogContainer[0].firstChild);
 				break;
 			default:
 				console.log("Unknown action log type: %s", rgEntry.type);
@@ -721,6 +841,8 @@ var localUpdateLog = function( rgLaneLog ) {
 	while(e.children.length > 20 ) {
 		e.children[e.children.length-1].remove();
 	}
+
+	EraseFromHistory(abilityStorage, level);
 };
 
 function disableParticles() {
@@ -1182,7 +1304,7 @@ function useAbilitiesAt100() {
 				return;
 			}
 			if (bHaveItem(ABILITIES.WORMHOLE)) triggerAbility(ABILITIES.WORMHOLE); //wormhole
-		}, 1000); //SLOW DOWN. 100ms trigger is causing server to ignore client, primary cause of client desync.
+		}, DialHomeDeviceSpeed); // Use WormholeRate!
 	}
 	
 	//This should equate to approximately 1.8 Like News per second
@@ -1605,25 +1727,27 @@ function toggleAllText(event) {
 		getScene().m_rgClickNumbers.push = trt_oldPush;
 	}
 	
-	if(value) {
-		CUI.prototype.UpdateLog = localUpdateLog;
-	} else {
-		CUI.prototype.UpdateLog = originalUpdateLog;
-	}
-	
 	updateToggle("allText", value);
 }
 
-function toggleTrackTroll() {
-	var value = enableTrollTrack = !enableTrollTrack;
-	
-	updateToggle("trollTracker", value);
+function toggleTrackTroll(event) {
+	var value = enableTrollTrack;
+
+	if(event !== undefined) {
+		value = handleCheckBox(event);
+	}
+
+	if(value) {
+		CUI.prototype.UpdateLog = LocalTrollHunter;
+	} else {
+		CUI.prototype.UpdateLog = LocalLazyUpdateLoop;
+	}
 }
 
 function setPreference(key, value) {
 	try {
 		if(localStorage !== 'undefined') {
-			localStorage.setItem('steamdb-minigame-wormholers/' + key, value);
+			localStorage.setItem('steamdb-minigame-yowh/' + key, value);
 		}
 	} catch (e) {
 		console.log(e); // silently ignore error
@@ -1633,7 +1757,7 @@ function setPreference(key, value) {
 function getPreference(key, defaultValue) {
 	try {
 		if(localStorage !== 'undefined') {
-			var result = localStorage.getItem('steamdb-minigame-wormholers/' + key);
+			var result = localStorage.getItem('steamdb-minigame-yowh/' + key);
 			return (result !== null ? result : defaultValue);
 		}
 	} catch (e) {
