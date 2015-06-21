@@ -1114,27 +1114,6 @@ function useAutoBadgePurchase() {
 	window.$J("#spend_badge_points_dialog").hide();
 }
 
-function toggleAutoBadgePurchase(event) {
-	var value = enableAutoBadgePurchase;
-
-	if(event !== undefined) {
-		value = handleCheckBox(event);
-	}
-
-	enableAutoBadgePurchase = value;
-}
-
-/*
-// NOTE: THIS IS NEVER CALLED ANYMORE, AS IT IS DETRIMENTAL TO WORMHOLE STRATS
-function useAllAbilities() {
-	for(var key in ABILITIES) {
-		if(ABILITIES[key] == ABILITIES.WORMHOLE) { continue; }
-		if(ABILITIES[key] == ABILITIES.LIKE_NEW) { continue; }
-		tryUsingAbility(ABILITIES[key]);
-	}
-}
-*/
-
 function isBossLevel(level) {
 	return level % 100 === 0;
 }
@@ -1366,58 +1345,6 @@ function useAutoUpgrade() {
 		}
 	}
 
-}
-
-function toggleAutoUpgradeDPS(event) {
-	var value = enableAutoUpgradeDPS;
-
-	if(event !== undefined) {
-		value = handleCheckBox(event);
-	}
-
-	enableAutoUpgradeDPS = value;
-}
-
-function toggleAutoUpgradeClick(event) {
-	var value = enableAutoUpgradeClick;
-
-	if(event !== undefined) {
-		value = handleCheckBox(event);
-	}
-
-	enableAutoUpgradeClick = value;
-}
-
-function toggleAutoUpgradeHP(event) {
-	var value = enableAutoUpgradeHP;
-
-	if(event !== undefined) {
-		value = handleCheckBox(event);
-	}
-
-	enableAutoUpgradeHP = value;
-}
-
-function toggleAutoUpgradeElemental(event) {
-
-	var value = enableAutoUpgradeElemental;
-
-	if(event !== undefined) {
-		value = handleCheckBox(event);
-	}
-
-	enableAutoUpgradeElemental = value;
-}
-
-function toggleAutoPurchase(event) {
-
-	var value = enableAutoPurchase;
-
-	if(event !== undefined) {
-		value = handleCheckBox(event);
-	}
-
-	enableAutoPurchase = value;
 }
 
 function refreshPlayerData() {
