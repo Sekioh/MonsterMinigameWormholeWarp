@@ -186,9 +186,10 @@ disableParticles();
 // Define custom getters for document.hidden and the prefixed versions, so the game
 // doesn't stop ticking in the background.
 if (Object.defineProperty) {
-  var props = ['hidden', 'webkitHidden', 'mozHidden', 'msHidden'];
-  for (var i = 0; i < props.length; ++i)
-    Object.defineProperty(document, props[i], {value: false});
+	var props = ['hidden', 'webkitHidden', 'mozHidden', 'msHidden'];
+	for (var i = 0; i < props.length; ++i) {
+		Object.defineProperty(document, props[i], {value: false});
+	}
 }
 
 if(!getPreferenceBoolean("alertShown", false)) {
@@ -304,13 +305,13 @@ function firstRun() {
 		document.body.style.backgroundPosition = "0 0";
 	}
 
-	originalUpdateLog = CUI.prototype.UpdateLog;
+	originalUpdateLog = window.CUI.prototype.UpdateLog;
 
 	// Set to match preferences
 	toggleTrackTroll();
 
 	// Add cool background
-	$J('body.flat_page.game').css({
+	window.$J('body.flat_page.game').css({
 		'background-image': 'url(http://i.imgur.com/P8TB236.jpg)',
 		'background-repeat': 'repeat',
 	});
@@ -369,7 +370,7 @@ function firstRun() {
 	//try to autoBuy BP
 	if(enableAutoBadgePurchase){
 		var bpAutoBuyer = setInterval(function() {
-			if($J("#spend_badge_points_dialog").is(":visible")){
+			if(window.$J("#spend_badge_points_dialog").is(":visible")){
 				clearInterval(bpAutoBuyer);
 				useAutoBadgePurchase();
 			}
@@ -380,9 +381,9 @@ function firstRun() {
 function addExtraUI() {
 	
 	//Add settings div
-	$J("#gamecontainer").append('<div id="settings"></div>');
+	window.$J("#gamecontainer").append('<div id="settings"></div>');
 	
-	$J('#settings').css({
+	window.$J('#settings').css({
 		"position": "absolute",
 		"background": "url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/img/settings.png')",
 		"background-repeat": "no-repeat",
@@ -397,8 +398,8 @@ function addExtraUI() {
 	});
 
 	//Bring the close button back
-	$J('<div class="leave_game_btn">Close Game</div>').insertAfter("#settings");
-	$J(".leave_game_btn").css({
+	window.$J('<div class="leave_game_btn">Close Game</div>').insertAfter("#settings");
+	window.$J(".leave_game_btn").css({
 		"width": "120px",
 		"position": "absolute",
 		"bottom": "90px",
@@ -413,121 +414,122 @@ function addExtraUI() {
 		"font-family": "'Press Start 2P', \"Lucida Console\", Consolas, Arial",
 		"color": "white"
 	});
-	$J('.leave_game_btn').click(function() {
+	window.$J('.leave_game_btn').click(function() {
 		window.location = 'http://steamcommunity.com/minigame/';
 	});
 	
-	$J('<div class="leave_game_helper">You can safely close the game or leave this screen at any time—you will continue collecting gold and damaging monsters even while away from your computer. Check back occasionally to see how you\'re doing and use in-game gold to purchase upgrades.</div>').insertAfter("#settings");
-	$J(".leave_game_helper").css({
+	window.$J('<div class="leave_game_helper">You can safely close the game or leave this screen at any time—you will continue collecting gold and damaging monsters even while away from your computer. Check back occasionally to see how you\'re doing and use in-game gold to purchase upgrades.</div>').insertAfter("#settings");
+	window.$J(".leave_game_helper").css({
 		"left": "150px",
 		"top": "initial",
 		"bottom": "-20px",
 		"z-index": "13"
 	});
 	
-	$J("#settings").append('<div id="music_toggle" class="toggle"><span class="value disabled"></span><span class="title">Music: </span></div>');
-	$J("#settings").append('<div id="sfx_toggle" class="toggle"><span class="value disabled"></span><span class="title">SFX: </span></div>');
-	$J("#settings").append('<div id="interface_toggle" class="toggle"><span class="value disabled"></span><span class="title">Interface*:  </span></div>');
-	$J("#settings").append('<div id="particle_toggle" class="toggle"><span class="value disabled"></span><span class="title">Particles*: </span></div>');
-	$J("#settings").append('<div id="flinching_toggle" class="toggle"><span class="value disabled"></span><span class="title">Flinching*: </span></div>');
-	$J("#settings").append('<div id="critText_toggle" class="toggle"><span class="value enabled"></span><span class="title">Crit Text: </span></div>');
-	$J("#settings").append('<div id="allText_toggle" class="toggle"><span class="value enabled"></span><span class="title">All Text: </span></div>');
-	$J("#settings").append('<div id="limitFPS_toggle" class="toggle"><span class="value enabled"></span><span class="title">Limit FPS: </span></div>');
-	$J("#settings").append('<div id="pointer_toggle" class="toggle"><span class="value enabled"></span><span class="title">Targetting Pointer: </span></div>');
-	$J("#settings").append('<div id="trollTracker_toggle" class="toggle"><span class="value disabled"></span><span class="title">Troll Tracking: </span></div>');
-	$J("#settings").append('<div id="elementLock_toggle" class="toggle"><span class="value enabled"></span><span class="title">Element Locking: </span></div>');
-	$J("#settings").append('<div id="chen_toggle" class="toggle"><span class="value disabled"></span><span class="title">Honk Honk? </span></div>');
+	window.$J("#settings").append('<div id="music_toggle" class="toggle"><span class="value disabled"></span><span class="title">Music: </span></div>');
+	window.$J("#settings").append('<div id="sfx_toggle" class="toggle"><span class="value disabled"></span><span class="title">SFX: </span></div>');
+	window.$J("#settings").append('<div id="interface_toggle" class="toggle"><span class="value disabled"></span><span class="title">Interface*:  </span></div>');
+	window.$J("#settings").append('<div id="particle_toggle" class="toggle"><span class="value disabled"></span><span class="title">Particles*: </span></div>');
+	window.$J("#settings").append('<div id="flinching_toggle" class="toggle"><span class="value disabled"></span><span class="title">Flinching*: </span></div>');
+	window.$J("#settings").append('<div id="critText_toggle" class="toggle"><span class="value enabled"></span><span class="title">Crit Text: </span></div>');
+	window.$J("#settings").append('<div id="allText_toggle" class="toggle"><span class="value enabled"></span><span class="title">All Text: </span></div>');
+	window.$J("#settings").append('<div id="limitFPS_toggle" class="toggle"><span class="value enabled"></span><span class="title">Limit FPS: </span></div>');
+	window.$J("#settings").append('<div id="pointer_toggle" class="toggle"><span class="value enabled"></span><span class="title">Targetting Pointer: </span></div>');
+	window.$J("#settings").append('<div id="trollTracker_toggle" class="toggle"><span class="value disabled"></span><span class="title">Troll Tracking: </span></div>');
+	window.$J("#settings").append('<div id="elementLock_toggle" class="toggle"><span class="value enabled"></span><span class="title">Element Locking: </span></div>');
+	window.$J("#settings").append('<div id="chen_toggle" class="toggle"><span class="value disabled"></span><span class="title">Honk Honk? </span></div>');
 	
-	$J("#settings").append('<div><span class="toggle">Lock Level: <input type="number" id="logLevelInput" value="'+logLevel+'" min=0 max=5></input></span></div>');
+	window.$J("#settings").append('<div><span class="toggle">Lock Level: <input type="number" id="logLevelInput" value="'+logLevel+'" min=0 max=5></input></span></div>');
 	
-	$J("#logLevelInput").change(function() {
-		logLevel = $J('#logLevelInput').val();
+	window.$J("#logLevelInput").change(function() {
+		logLevel = window.$J('#logLevelInput').val();
 	});
 	
 	//Prevent propagation back to container slider
-	$J("#logLevelInput").click(function(event) {
+	window.$J("#logLevelInput").click(function(event) {
 		Event.stop(event);
 	});
 	
-	$J("#settings").append('<div><span class="toggle" style="margin-left: 25px; color: red">* - Restart Required</span></div>');
+	window.$J("#settings").append('<div><span class="toggle" style="margin-left: 25px; color: red">* - Restart Required</span></div>');
 	
-	$J("#sfx_toggle").click(function(e) {
+	window.$J("#sfx_toggle").click(function(e) {
 		e.stopPropagation();
 		toggleSFX(true);
 	});
 	
-	$J("#music_toggle").click(function(e) {
+	window.$J("#music_toggle").click(function(e) {
 		e.stopPropagation();
 		toggleMusic(true);
 	});
 	
-	$J("#interface_toggle").click(function(e) {
+	window.$J("#interface_toggle").click(function(e) {
 		e.stopPropagation();
 		toggleInterface(true);
 	});
-	$J("#particle_toggle").click(function(e) {
+
+	window.$J("#particle_toggle").click(function(e) {
 		e.stopPropagation();
 		toggleParticles(true);
 	});
 	
-	$J("#flinching_toggle").click(function(e) {
+	window.$J("#flinching_toggle").click(function(e) {
 		e.stopPropagation();
 		toggleFlinching(true);
 	});
 	
-	$J("#critText_toggle").click(function(e) {
+	window.$J("#critText_toggle").click(function(e) {
 		e.stopPropagation();
 		toggleCritText();
 	});
 	
-	$J("#allText_toggle").click(function(e) {
+	window.$J("#allText_toggle").click(function(e) {
 		e.stopPropagation();
 		toggleAllText();
 	});
 	
-	$J("#limitFPS_toggle").click(function(e) {
+	window.$J("#limitFPS_toggle").click(function(e) {
 		e.stopPropagation();
 		toggleRenderer();
 	});
 	
-	$J("#pointer_toggle").click(function(e) {
+	window.$J("#pointer_toggle").click(function(e) {
 		e.stopPropagation();
 		toggleFingering();
 	});
 	
-	$J("#trollTracker_toggle").click(function(e) {
+	window.$J("#trollTracker_toggle").click(function(e) {
 		e.stopPropagation();
 		toggleTrackTroll();
 	});
 	
-	$J("#elementLock_toggle").click(function(e) {
+	window.$J("#elementLock_toggle").click(function(e) {
 		e.stopPropagation();
 		toggleElementLock();
 	});
 	
-	$J("#chen_toggle").click(function(e) {
+	window.$J("#chen_toggle").click(function(e) {
 		e.stopPropagation();
 		toggleChen();
 	});
 	
 	// We force update the icon once to sync with active settings
-	updateToggle("sfx", !WebStorage.GetLocal('minigame_mute'));
-	updateToggle("music", !WebStorage.GetLocal('minigame_mutemusic'));
+	updateToggle("sfx", !window.WebStorage.GetLocal('minigame_mute'));
+	updateToggle("music", !window.WebStorage.GetLocal('minigame_mutemusic'));
 	updateToggle("interface", !removeInterface);
 	updateToggle("particle", !removeParticles);
 	updateToggle("flinching", !removeFlinching);
 
 	// Slide the settings panel out on click
-	$J("#settings").click(function() {
-		var op = $J("#settings");
+	window.$J("#settings").click(function() {
+		var op = window.$J("#settings");
 		op.animate({
 			bottom: parseInt(op.css('bottom'), 10) == -65 ? -op.outerHeight() : -65
 		});
 	});
 
 	//Statistics
-	$J("#gamecontainer").append('<div id="statistics"></div>');
-	$J('#statistics').css({
+	window.$J("#gamecontainer").append('<div id="statistics"></div>');
+	window.$J('#statistics').css({
 		"position": "absolute",
 		"background": "url('https://raw.githubusercontent.com/ensingm2/SteamMonsterGameScript/master/img/stats.png')",
 		"background-repeat": "no-repeat",
@@ -542,62 +544,62 @@ function addExtraUI() {
 	});
 
 	//Add in stats
-	$J("#statistics").append('<div id="stat_player_dpc" class="stat"><span class="title">Dmg Per Click: </span><span class="value">0</span></div>');
-	$J("#statistics").append('<div id="stat_player_dps" class="stat"><span class="title">Dmg Per Second: </span><span class="value">0</span></div>');
-	$J("#statistics").append('<div id="stat_player_crit" class="stat"><span class="title">Critical Chance: </span><span class="value">0</span></div>');
-	$J("#statistics").append('<div id="stat_crit_mul" class="stat"><span class="title">Critical Dmg Multiplier: </span><span class="value">0</span></div>');
-	$J("#statistics").append('<div id="stat_elemental_mul" class="stat"><span class="title">Elemental Multiplier: </span><span class="value">0</span></div>');
-	$J("#statistics").append('<div id="stat_elemental_dpc" class="stat"><span class="title">Elemental DPC: </span><span class="value">0</span></div>');
-	$J("#statistics").append('<div id="stat_elemental_dps" class="stat"><span class="title">Elemental DPS: </span><span class="value">0</span></div>');
-	$J("#statistics").append('<div id="stat_boss_loot" class="stat"><span class="title">Boss Loot Chance: </span><span class="value">0</span></div>');
+	window.$J("#statistics").append('<div id="stat_player_dpc" class="stat"><span class="title">Dmg Per Click: </span><span class="value">0</span></div>');
+	window.$J("#statistics").append('<div id="stat_player_dps" class="stat"><span class="title">Dmg Per Second: </span><span class="value">0</span></div>');
+	window.$J("#statistics").append('<div id="stat_player_crit" class="stat"><span class="title">Critical Chance: </span><span class="value">0</span></div>');
+	window.$J("#statistics").append('<div id="stat_crit_mul" class="stat"><span class="title">Critical Dmg Multiplier: </span><span class="value">0</span></div>');
+	window.$J("#statistics").append('<div id="stat_elemental_mul" class="stat"><span class="title">Elemental Multiplier: </span><span class="value">0</span></div>');
+	window.$J("#statistics").append('<div id="stat_elemental_dpc" class="stat"><span class="title">Elemental DPC: </span><span class="value">0</span></div>');
+	window.$J("#statistics").append('<div id="stat_elemental_dps" class="stat"><span class="title">Elemental DPS: </span><span class="value">0</span></div>');
+	window.$J("#statistics").append('<div id="stat_boss_loot" class="stat"><span class="title">Boss Loot Chance: </span><span class="value">0</span></div>');
 
-	$J("#footer_spacer").css({
+	window.$J("#footer_spacer").css({
 		"height": "175px"
 	});
-	$J("canvas").css({
+	window.$J("canvas").css({
 		"position": "relative",
 		"z-index": "5"
 	});
-	$J("#uicontainer").css({
+	window.$J("#uicontainer").css({
 		"z-index": "6"
 	});
 	
 	//Update stats
 	setInterval(function() {
 		function getElementalMul() {
-			return Math.max(g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_air, g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_earth, g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_fire, g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_water);
+			return Math.max(window.g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_air, window.g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_earth, window.g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_fire, window.g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_water);
 		}
-		$J("#statistics #stat_player_dpc .value").html(FormatNumberForDisplay(g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_per_click, 5));
-		$J("#statistics #stat_player_dps .value").html(FormatNumberForDisplay(g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_per_click * clickRate, 5));
-		$J("#statistics #stat_player_crit .value").html(FormatNumberForDisplay(Math.round(g_Minigame.m_CurrentScene.m_rgPlayerTechTree.crit_percentage * 100), 5) + "%");
-		$J("#statistics #stat_crit_mul .value").html(FormatNumberForDisplay(g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_crit, 5) + "x");
-		$J("#statistics #stat_elemental_mul .value").html(FormatNumberForDisplay(getElementalMul()) + "x");
-		$J("#statistics #stat_elemental_dpc .value").html(FormatNumberForDisplay(getElementalMul() * g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_per_click, 5));
-		$J("#statistics #stat_elemental_dps .value").html(FormatNumberForDisplay(getElementalMul() * g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_per_click * clickRate, 5));
-		$J("#statistics #stat_boss_loot .value").html(FormatNumberForDisplay(Math.round(g_Minigame.m_CurrentScene.m_rgPlayerTechTree.boss_loot_drop_percentage * 100, 5)) + "%");
+		window.$J("#statistics #stat_player_dpc .value").html(window.FormatNumberForDisplay(window.g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_per_click, 5));
+		window.$J("#statistics #stat_player_dps .value").html(window.FormatNumberForDisplay(window.g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_per_click * clickRate, 5));
+		window.$J("#statistics #stat_player_crit .value").html(window.FormatNumberForDisplay(Math.round(window.g_Minigame.m_CurrentScene.m_rgPlayerTechTree.crit_percentage * 100), 5) + "%");
+		window.$J("#statistics #stat_crit_mul .value").html(window.FormatNumberForDisplay(window.g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_multiplier_crit, 5) + "x");
+		window.$J("#statistics #stat_elemental_mul .value").html(window.FormatNumberForDisplay(getElementalMul()) + "x");
+		window.$J("#statistics #stat_elemental_dpc .value").html(window.FormatNumberForDisplay(getElementalMul() * window.g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_per_click, 5));
+		window.$J("#statistics #stat_elemental_dps .value").html(window.FormatNumberForDisplay(getElementalMul() * window.g_Minigame.m_CurrentScene.m_rgPlayerTechTree.damage_per_click * clickRate, 5));
+		window.$J("#statistics #stat_boss_loot .value").html(window.FormatNumberForDisplay(Math.round(window.g_Minigame.m_CurrentScene.m_rgPlayerTechTree.boss_loot_drop_percentage * 100, 5)) + "%");
 	}, 1000);
 
-	$J("#statistics").click(function() {
-		var op = $J("#statistics");
+	window.$J("#statistics").click(function() {
+		var op = window.$J("#statistics");
 		op.animate({
 			bottom: parseInt(op.css('bottom'), 10) == -65 ? -op.outerHeight() : -65
 		});
 	});
 
 	//Smack the TV Easter Egg
-	$J('<div style="height: 52px; position: absolute; bottom: 85px; left: 828px; z-index: 12;" onclick="SmackTV();"><br><br><span style="font-size:10px; padding: 12px; color: gold;">Smack TV</span></div>').insertBefore('#row_bottom');
+	window.$J('<div style="height: 52px; position: absolute; bottom: 85px; left: 828px; z-index: 12;" onclick="SmackTV();"><br><br><span style="font-size:10px; padding: 12px; color: gold;">Smack TV</span></div>').insertBefore('#row_bottom');
 
 	//Remove unneeded options area 
-	$J(".game_options").remove();
+	window.$J(".game_options").remove();
 
 	//Hide the stupid "Leave game" tooltip
-	$J('.leave_game_btn').mouseover(function() {
-			$J('.leave_game_helper').show();
+	window.$J('.leave_game_btn').mouseover(function() {
+			window.$J('.leave_game_helper').show();
 		})
 		.mouseout(function() {
-			$J('.leave_game_helper').hide();
+			window.$J('.leave_game_helper').hide();
 		});
-	$J('.leave_game_helper').hide(); 
+	window.$J('.leave_game_helper').hide(); 
 
 	
 	//Custom CSS
@@ -624,13 +626,13 @@ function addExtraUI() {
 	css += ".abilityDisabledIndicator {  z-index: 2; position: absolute; background: url('http://cdn.steamcommunity.com//economy/emoticon/:TryAgain:'); background-size: 36px 36px; background-repeat: no-repeat; width: 36px; height: 36px; }";
 	css += ".abilityDisabledIndicator.hidden {  display: none; }";
 	
-	$J('head').append('<style>' + css + '</style>');
+	window.$J('head').append('<style>' + css + '</style>');
 	
 	// Put the page footer behind settings
-	$J("#footer").css('z-index', -1);
+	window.$J("#footer").css('z-index', -1);
 	
 	// 'Disabled' indicators for disabled abilities
-	$J('.abilitytemplate').prepend('<div class="abilityDisabledIndicator hidden"></div>');
+	window.$J('.abilitytemplate').prepend('<div class="abilityDisabledIndicator hidden"></div>');
 }
 
 function toggleInterface() {
@@ -653,22 +655,22 @@ function toggleFlinching() {
 
 function updateToggle(id, enabled) {
 	if (enabled) {
-		$J("#" + id + "_toggle span.value").removeClass("disabled").addClass("enabled");
+		window.$J("#" + id + "_toggle span.value").removeClass("disabled").addClass("enabled");
 	} else {
-		$J("#" + id + "_toggle span.value").removeClass("enabled").addClass("disabled");
+		window.$J("#" + id + "_toggle span.value").removeClass("enabled").addClass("disabled");
 	}
 }
 
 function toggleSFX() {
-	WebStorage.SetLocal('minigame_mute', !WebStorage.GetLocal('minigame_mute'));
+	window.WebStorage.SetLocal('minigame_mute', !window.WebStorage.GetLocal('minigame_mute'));
 		
-	updateToggle("sfx", !WebStorage.GetLocal('minigame_mute'));
+	updateToggle("sfx", !window.WebStorage.GetLocal('minigame_mute'));
 }
 
 function toggleMusic() {
-	g_AudioManager.ToggleMusic();
+	window.g_AudioManager.ToggleMusic();
 	
-	updateToggle("music", !WebStorage.GetLocal('minigame_mutemusic'));
+	updateToggle("music", !window.WebStorage.GetLocal('minigame_mutemusic'));
 }
 
 // Valve's update
@@ -679,28 +681,34 @@ var localUpdateLog = function( rgLaneLog ) {
 	var abilities = this.m_Game.m_rgTuningData.abilities;
 	var level = getGameLevel();
 
-	if( !this.m_Game.m_rgPlayerTechTree ) return;
+	if( !this.m_Game.m_rgPlayerTechTree ) {
+		return;
+	}
 
 	var nHighestTime = 0;
 
 	for( var i=rgLaneLog.length-1; i >= 0; i--) {
 		var rgEntry = rgLaneLog[i];
 
-		if( isNaN( rgEntry.time ) ) rgEntry.time = this.m_nActionLogTime + 1;
+		if( isNaN( rgEntry.time ) ) {
+			rgEntry.time = this.m_nActionLogTime + 1;
+		}
 
-		if( rgEntry.time <= this.m_nActionLogTime ) continue;
+		if( rgEntry.time <= this.m_nActionLogTime ) {
+			continue;
+		}
 
 		// If performance concerns arise move the level check out and swap switch for if.
 		switch( rgEntry.type ) {
 			case 'ability':
 				if ( (level % 100 !== 0 && [26].indexOf(rgEntry.ability) > -1) || (level % 100 === 0 && [10, 11, 12, 15, 20].indexOf(rgEntry.ability) > -1) ) {
 					var ele = this.m_eleUpdateLogTemplate.clone();
-					$J(ele).data('abilityid', rgEntry.ability);
-					$J('.name', ele).text(rgEntry.actor_name).attr("style", "color: red; font-weight: bold;");
-					$J('.ability', ele).text(abilities[rgEntry.ability].name + " on level " + level);
-					$J('img', ele).attr('src', g_rgIconMap['ability_' + rgEntry.ability].icon);
+					window.$J(ele).data('abilityid', rgEntry.ability);
+					window.$J('.name', ele).text(rgEntry.actor_name).attr("style", "color: red; font-weight: bold;");
+					window.$J('.ability', ele).text(abilities[rgEntry.ability].name + " on level " + level);
+					window.$J('img', ele).attr('src', window.g_rgIconMap['ability_' + rgEntry.ability].icon);
 
-					$J(ele).v_tooltip({tooltipClass: 'ta_tooltip', location: 'top'});
+					window.$J(ele).v_tooltip({tooltipClass: 'ta_tooltip', location: 'top'});
 
 					this.m_eleUpdateLogContainer[0].insertBefore(ele[0], this.m_eleUpdateLogContainer[0].firstChild);
 				
@@ -712,10 +720,14 @@ var localUpdateLog = function( rgLaneLog ) {
 				console.log(rgEntry);
 		}
 
-		if(rgEntry.time > nHighestTime) nHighestTime = rgEntry.time;
+		if(rgEntry.time > nHighestTime) {
+			nHighestTime = rgEntry.time;
+		}
 	}
 
-	if( nHighestTime > this.m_nActionLogTime ) this.m_nActionLogTime = nHighestTime;
+	if( nHighestTime > this.m_nActionLogTime ) {
+		this.m_nActionLogTime = nHighestTime;
+	}
 
 	var e = this.m_eleUpdateLogContainer[0];
 	while(e.children.length > 20 ) {
@@ -829,7 +841,7 @@ function MainLoop() {
 			}
 		}
 
-		if (level % 100 == 0) {
+		if (level % 100 === 0) {
 			// On a WH level, jump everyone with wormholes to lane 0, unless there is a boss there, in which case jump to lane 1.
 			var targetLane = 0;
 			// Check lane 0, enemy 0 to see if it's a boss
@@ -858,8 +870,9 @@ function MainLoop() {
 		}
 		
 		// Clear any unsent abilities still in the queue when our level changes
-		if( level !== lastLevel )
+		if( level !== lastLevel ) {
 			getScene().m_rgAbilityQueue.clear();
+		}
 
 		attemptRespawn();
 
@@ -868,7 +881,7 @@ function MainLoop() {
 			window.SteamDB_Wormhole_Timer = false;
 		}
 
-		if(level % 100 == 0){
+		if(level % 100 === 0) {
 			useAbilitiesAt100();
 		} else {
 			useAbilities(level);
@@ -912,13 +925,14 @@ function MainLoop() {
 				}
 			}
 
-			var levelsUntilBoss = (CONTROL.rainingRounds - (level % CONTROL.rainingRounds))
+			var levelsUntilBoss = (CONTROL.rainingRounds - (level % CONTROL.rainingRounds));
+
 			if (levelsUntilBoss < 5 && Math.random < (0.9 / levelsUntilBoss)){
 				absoluteCurrentClickRate = clicksOnBossLevel;
 			}
 			
 			//If at the boss level, dont click at all
-			if (level % CONTROL.rainingRounds == 0) {
+			if (level % CONTROL.rainingRounds === 0) {
 				absoluteCurrentClickRate = clicksOnBossLevel;
 			}
 
@@ -1058,12 +1072,14 @@ function useAutoBadgePurchase() {
 		var toBuyCount = getBPBuyCount(id, usagePct); 
 		
 		//Hard cap crit at 100
-		if(id == ABILITIES.CRIT)
+		if(id == ABILITIES.CRIT) {
 			toBuyCount = Math.min(toBuyCount, 89); // Max of 89 crit items (puts you at 99.000000149011612% crit chance)
+		}
 		
 		// Buy the item the specified number of times
-		for(var j=0; j < toBuyCount; j++ )
+		for(var j=0; j < toBuyCount; j++ ) {
 			abilityPurchaseQueue.push(id);
+		}
 		
 		// Decrement our badge points remaining
 		badgePoints -= toBuyCount * abilityData[id].badge_points_cost;
@@ -1081,8 +1097,9 @@ function useAutoBadgePurchase() {
 	//Loop this cause sometimes you don't actually spend everything
 	while(getScene().m_rgPlayerTechTree.badge_points >  0) {
 		badgePoints = getScene().m_rgPlayerTechTree.badge_points;
-		for(badgePoints; badgePoints > 0;  badgePoints -= dumpCost)
+		for (badgePoints; badgePoints > 0;  badgePoints -= dumpCost) {
 			abilityPurchaseQueue.push(ABILITIES.PUMPED_UP);
+		}
 		
 		getScene().m_rgPlayerTechTree.badge_points = badgePoints;
 		
@@ -1094,7 +1111,7 @@ function useAutoBadgePurchase() {
 	
 	
 	// Force Hide the BP store (after half a second, since if you do it too fast steam re-opens it)
-	$J("#spend_badge_points_dialog").hide();
+	window.$J("#spend_badge_points_dialog").hide();
 }
 
 function toggleAutoBadgePurchase(event) {
@@ -1119,7 +1136,7 @@ function useAllAbilities() {
 */
 
 function isBossLevel(level) {
-	return level % 100 === 0
+	return level % 100 === 0;
 }
 
 
@@ -1162,7 +1179,7 @@ function levelsPerSec() {
 	}).map(function(levelInfo) {
 		timeSpentOnBosses += levelInfo.timeTakenInSeconds;
 		levelsGainedFromBosses += levelInfo.levelsGained;
-	})
+	});
 
 	return Math.round(((getGameLevel() - lastLevelTimeTaken.slice(-1).pop().level - levelsGainedFromBosses)
 			/ (getScene().m_rgGameData.timestamp - lastLevelTimeTaken.slice(-1).pop().timeStarted - timeSpentOnBosses)) * 1000 ) / 1000;
@@ -1181,7 +1198,9 @@ function useAbilitiesAt100() {
 				window.SteamDB_Wormhole_Timer = false;
 				return;
 			}
-			if (bHaveItem(ABILITIES.WORMHOLE)) triggerAbility(ABILITIES.WORMHOLE); //wormhole
+			if (bHaveItem(ABILITIES.WORMHOLE)) {
+				triggerAbility(ABILITIES.WORMHOLE); //wormhole
+			}
 		}, 1000); //SLOW DOWN. 100ms trigger is causing server to ignore client, primary cause of client desync.
 	}
 	
@@ -1476,9 +1495,9 @@ function makeDropdown(name, desc, value, values, listener) {
 }
 
 function toggleAutoClicker() {
-	var value = enableAutoClicker = !enableAutoClicker;
+	enableAutoClicker = !enableAutoClicker;
 
-	if(value) {
+	if (enableAutoClicker) {
 		currentClickRate = clickRate;
 	} else {
 		currentClickRate = 0;
@@ -1486,7 +1505,7 @@ function toggleAutoClicker() {
 }
 
 function toggleFingering() {
-	var value = enableFingering = !enableFingering;
+	enableFingering = !enableFingering;
 
 	window.CSceneGame.prototype.ClearNewPlayer = function(){};
 
@@ -1496,7 +1515,7 @@ function toggleFingering() {
 		window.WebStorage.SetLocal('mg_how2click', 1);
 	}
 
-	if(value) {
+	if (enableFingering) {
 		getScene().m_containerParticles.addChild(getScene().m_spriteFinger);
 	} else {
 		getScene().m_containerParticles.removeChild(getScene().m_spriteFinger);
@@ -1507,9 +1526,9 @@ function toggleFingering() {
 }
 
 function toggleAutoRefresh() {
-	var value = enableAutoRefresh = !enableAutoRefresh;
+	enableAutoRefresh = !enableAutoRefresh;
 
-	if(value) {
+	if(enableAutoRefresh) {
 		autoRefreshPage(autoRefreshMinutes);
 	} else {
 		clearTimeout(refreshTimer);
@@ -1517,11 +1536,11 @@ function toggleAutoRefresh() {
 }
 
 function toggleRenderer() {
-	var value = disableRenderer = !disableRenderer;
+	disableRenderer = !disableRenderer;
 
 	var ticker = window.PIXI.ticker.shared;
 
-	if (!value) {
+	if (!disableRenderer) {
 		ticker.autoStart = true;
 		ticker.start();
 
@@ -1558,6 +1577,8 @@ function autoRefreshPage(autoRefreshMinutes){
 
 function autoRefreshHandler() {
 	// Only skip on % 100 levels when it's been less than the maximum delay specified.
+
+	// TODO: find out what autoRefreshFirstBossDelay is supposed to be defined to. (Var is undefined in script and game?)
 	if(lastLevelTimeTaken[1].level % 100 === 0 && autoRefreshDuringBossDelayTotal < autoRefreshFirstBossDelay) {
 		advLog('Not refreshing (boss level)', 5);
 		autoRefreshDuringBossDelayTotal += autoRefreshFirstBossDelayStep;
@@ -1569,9 +1590,9 @@ function autoRefreshHandler() {
 }
 
 function toggleElementLock() {
-	var value = enableElementLock = !enableElementLock;
+	enableElementLock = !enableElementLock;
 
-	if(value) {
+	if(enableElementLock) {
 		lockElements();
 	} else {
 		unlockElements();
@@ -1581,22 +1602,22 @@ function toggleElementLock() {
 }
 
 function toggleCritText() {
-	var value = removeCritText = !removeCritText;
+	removeCritText = !removeCritText;
 
-	if (value) {
+	if (removeCritText) {
 		// Replaces the entire crit display function.
 		getScene().DoCritEffect = function() {};
 	} else {
 		getScene().DoCritEffect = trt_oldCrit;
 	}
 	
-	updateToggle("critText", value);
+	updateToggle("critText", removeCritText);
 }
 
 function toggleAllText(event) {
-	var value = removeAllText = !removeAllText;
+	removeAllText = !removeAllText;
 
-	if (value) {
+	if (removeAllText) {
 		// Replaces the entire text function.
 		getScene().m_rgClickNumbers.push = function(elem){
 			elem.container.removeChild(elem);
@@ -1605,19 +1626,19 @@ function toggleAllText(event) {
 		getScene().m_rgClickNumbers.push = trt_oldPush;
 	}
 	
-	if(value) {
-		CUI.prototype.UpdateLog = localUpdateLog;
+	if(removeAllText) {
+		window.CUI.prototype.UpdateLog = localUpdateLog;
 	} else {
-		CUI.prototype.UpdateLog = originalUpdateLog;
+		window.CUI.prototype.UpdateLog = originalUpdateLog;
 	}
 	
-	updateToggle("allText", value);
+	updateToggle("allText", removeAllText);
 }
 
 function toggleTrackTroll() {
-	var value = enableTrollTrack = !enableTrollTrack;
+	enableTrollTrack = !enableTrollTrack;
 	
-	updateToggle("trollTracker", value);
+	updateToggle("trollTracker", enableTrollTrack);
 }
 
 function setPreference(key, value) {
@@ -1670,7 +1691,7 @@ function estimateJumps() {
 		}
 	}
 	//During baws round fc
-	if (level % CONTROL.rainingRounds == 0)
+	if (level % CONTROL.rainingRounds === 0)
 	{
 		if (predictLastWormholesUpdate !== wormholesNow)
 		{
@@ -2273,10 +2294,10 @@ function tryUsingAbility(itemId, checkInLane, forceAbility) {
 	var needs_to_be_blocked = false;
 	var two_digit_level = level % 100;
 
-	var needs_to_be_blocked = (BOSS_DISABLED_ABILITIES.indexOf(itemId) != -1);
+	needs_to_be_blocked = (BOSS_DISABLED_ABILITIES.indexOf(itemId) != -1);
 
 	// must not use any damaging ability on boss levels
-	if (two_digit_level == 0 && needs_to_be_blocked) {
+	if (two_digit_level === 0 && needs_to_be_blocked) {
 		return false;
 
 	// Randomly Don't use this ability when we're getting close to the boss
@@ -2301,7 +2322,7 @@ function tryUsingAbility(itemId, checkInLane, forceAbility) {
 function triggerAbility(abilityId) {
 	if (abilityId === ABILITIES.WORMHOLE) {
 		// Fire this bad boy off immediately 
-		g_Server.UseAbilities($J.noop, $J.noop, {requested_abilities: [{ability: ABILITIES.WORMHOLE}]});
+		window.g_Server.UseAbilities(window.$J.noop, window.$J.noop, {requested_abilities: [{ability: ABILITIES.WORMHOLE}]});
 	} else {
 		getScene().m_rgAbilityQueue.push({'ability': abilityId});
 	}
@@ -2313,21 +2334,21 @@ function triggerAbility(abilityId) {
 
 function toggleAbility(abilityId, show) {
 
-	var elem = $J("#ability_" + abilityId);
+	var elem = window.$J("#ability_" + abilityId);
 
 	// temporary
-	if(elem && elem.length == 0) {
-		elem = $J("#abilityitem_" + abilityId);
+	if(elem && elem.length === 0) {
+		elem = window.$J("#abilityitem_" + abilityId);
 	}
 
 	if (elem) {
 		if(show) {
-			$(elem).find(".abilityDisabledIndicator").addClass('hidden');
+			elem.find(".abilityDisabledIndicator").addClass('hidden');
 			elem.unbind('click');
-			elem.click(function(e) { g_Minigame.CurrentScene().TryAbility(abilityId); return false; });
+			elem.click(function(e) { window.g_Minigame.CurrentScene().TryAbility(abilityId); return false; });
 		}
 		else {
-			$(elem).find(".abilityDisabledIndicator").removeClass('hidden');
+			elem.find(".abilityDisabledIndicator").removeClass('hidden');
 			elem.prop("onclick", null);
 			elem.unbind('click');
 			elem.click(function(e) { e.stopPropagation(); return false; });
@@ -2611,6 +2632,9 @@ function appendBreadcrumbsTitleInfo() {
 		breadcrumbs.appendChild(element);
 	}
 }
+
+// TODO: Comment this code even though nobody is looking. It literally looks like "trash".
+
 function subLong(x, y) {
     var addLong = function(x, y) {
         var s = '';
@@ -2623,11 +2647,15 @@ function subLong(x, y) {
         x = x.slice(0,-9); 
         y = y.slice(0,-9);
         if (s.length > 9) {
-            if (x === '') return s;
+            if (x === '') {
+            	return s;
+            }
             x = addLong(x, '1');
             s = s.slice(1);
         } else if (x.length) { while (s.length < 9) { s = '0' + s; } }
-        if (y === '') return x + s;
+        if (y === '') {
+        	return x + s;
+        }
         return addLong(x, y) + s; 
     };
 	
@@ -2654,17 +2682,17 @@ function getAccountId(id) {
 }
 
 function getUserName() {
-	if (g_Minigame.m_CurrentScene.m_rgPlayerNameCache) {
-		return g_Minigame.m_CurrentScene.m_rgPlayerNameCache[getAccountId(g_steamID)];
+	if (window.g_Minigame.m_CurrentScene.m_rgPlayerNameCache) {
+		return window.g_Minigame.m_CurrentScene.m_rgPlayerNameCache[getAccountId(window.g_steamID)];
 	}
 	return "Unknown";
 }
 
 function addIRC() {
 	//Add in IRC link
-	$J("#info_block").append('<div id="irc_join">Join IRC channel</div>');
+	window.$J("#info_block").append('<div id="irc_join">Join IRC channel</div>');
 	
-	$J("#irc_join").css({
+	window.$J("#irc_join").css({
 		"width": "232px",
 		"line-height": "30px",
 		"height": "30px",
@@ -2679,7 +2707,7 @@ function addIRC() {
 		"border": "2px solid white"
 	});
 	
-	$J("#irc_join").click(function(e) {
+	window.$J("#irc_join").click(function(e) {
 		e.stopPropagation();
 		window.open('https://webchat.quakenet.org/?nick=' + getUserName() + '&channels=YeOldeWH','_blank'); // Cant seem to find a local storing in js of the players username, so lets just take it from the dropdown
 	});
@@ -2696,14 +2724,16 @@ function updateLevelInfoTitle(level)
 }
 
 function abilityCooldown(abilityID) {
-	return g_Minigame.CurrentScene().GetCooldownForAbility(abilityID);
+	return window.g_Minigame.CurrentScene().GetCooldownForAbility(abilityID);
 }
 
 function abilityIsUnlocked(abilityID) {
-	if (abilityID <= ABILITIES.NAPALM)
-		return ((1 << abilityID) & g_Minigame.CurrentScene().m_rgPlayerTechTree.unlocked_abilities_bitfield) > 0;
-	else
+	if (abilityID <= ABILITIES.NAPALM) {
+		return ((1 << abilityID) & window.g_Minigame.CurrentScene().m_rgPlayerTechTree.unlocked_abilities_bitfield) > 0;
+	}
+	else {
 		return getAbilityItemQuantity(abilityID) > 0;
+	}
 }
 
 // thanks to /u/mouseasw for the base code: https://github.com/mouseas/steamSummerMinigame/blob/master/autoPlay.js
@@ -2715,11 +2745,12 @@ function hasAbility(abilityID) {
 }
 
 function getAbilityItemQuantity(abilityID) {
-	for (var i = 0; i < g_Minigame.CurrentScene().m_rgPlayerTechTree.ability_items.length; ++i) {
-		var abilityItem = g_Minigame.CurrentScene().m_rgPlayerTechTree.ability_items[i];
+	for (var i = 0; i < window.g_Minigame.CurrentScene().m_rgPlayerTechTree.ability_items.length; ++i) {
+		var abilityItem = window.g_Minigame.CurrentScene().m_rgPlayerTechTree.ability_items[i];
 
-		if (abilityItem.ability == abilityID)
+		if (abilityItem.ability == abilityID) {
 			return abilityItem.quantity;
+		}
 	}
 
 	return 0;
