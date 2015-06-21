@@ -2,7 +2,7 @@
 // @name Ye Olde Megajump
 // @namespace https://github.com/YeOldeWH/MonsterMinigameWormholeWarp
 // @description A script that runs the Steam Monster Minigame for you.  Now with megajump.  Brought to you by the Ye Olde Wormhole Schemers and DannyDaemonic
-// @version 7.0.2
+// @version 7.1.2
 // @match *://steamcommunity.com/minigame/towerattack*
 // @match *://steamcommunity.com//minigame/towerattack*
 // @grant none
@@ -293,6 +293,7 @@ function firstRun() {
 		// Always show ability count
 		".abilitytemplate > a > .abilityitemquantity {visibility: visible; pointer-events: none;}",
 		".tv_ui {background-image: url(http://i.imgur.com/vM1gTFY.gif);}",
+		"#Chen {position: absolute; bottom: 0px; left: 770px; width: 286px; height: 250px; background-image: url(//i.imgur.com/xMbQChA.png); }",
 		""
 	];
 	styleNode.textContent = styleText.join("");
@@ -318,6 +319,7 @@ function firstRun() {
 
 	// Set to match preferences
 	toggleTrackTroll();
+	toggleChen();
 
 	// Add cool background
 	$J('body.flat_page.game').css('background-image', 'url(http://i.imgur.com/P8TB236.jpg)');
@@ -559,8 +561,12 @@ function MainLoop() {
 			}
 
 			updateSkips = true;
+
+			// GoGo Chen
+			honkingIntenstifys(true);
 		} else {
 			goToLaneWithBestTarget(level);
+			honkingIntenstifys(false);
 		}
 
 		attemptRespawn();
@@ -1245,14 +1251,51 @@ function toggleRenderer(event) {
 
 var oldTvBg = "";
 function toggleChen(event) {
-	enableChen = !enableChen;
+	var value = enableChen;
+
+	if(event !== undefined) {
+		value = handleCheckBox(event);
+	}
+	enableChen = value;
+
 	if (enableChen) {
+		addChen();
+		honkingIntenstifys(isBossLevel(getGameLevel()));
+
 		oldTvBg = w.$J('.tv_ui').css('background-image');
-		w.$J('.tv_ui').css('background-image', 'url(//i.imgur.com/QNSzdlS.png)');
+		w.$J('.tv_ui').css('background-image', 'url(//i.imgur.com/9wmTsxr.png)');
 	} else {
 		w.$J('.tv_ui').css('background-image', oldTvBg);
+
+		honkingIntenstifys(false);
 	}
 
+}
+
+function addChen() {
+	var chenDiv = document.querySelector("#Chen");
+
+	if (!chenDiv) { // We can only handle one Chen D:
+		var chenHTML = document.createElement('div');
+		chenHTML.id = "Chen";
+		document.querySelector("#uicontainer > div.tv_ui").appendChild(chenHTML);
+	}
+}
+
+function honkingIntenstifys(isBoss, hide) {
+	var chenDiv = document.querySelector("#Chen");
+
+	if (chenDiv && enableChen && isBoss) {
+		chenDiv.style.backgroundImage = "url(//i.imgur.com/eGnE1cD.gif)";
+	} else if (chenDiv && enableChen) {
+		chenDiv.style.backgroundImage = "url(//i.imgur.com/xMbQChA.png)";
+	}
+
+	if (chenDiv && !enableChen) {
+		chenDiv.style.visibility = "hidden";
+	} else if (chenDiv) {
+		chenDiv.style.visibility = "visible";
+	}
 }
 
 function autoRefreshPage(autoRefreshMinutes){
