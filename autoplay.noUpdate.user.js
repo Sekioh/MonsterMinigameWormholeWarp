@@ -857,69 +857,7 @@ function MainLoop() {
 	}
 }
 
-function useAutoBadgePurchase() {
-	if(!enableAutoBadgePurchase) { return; }
 
-	// id = ability
-	// ratio = how much of the remaining badges to spend
-	
-	//Note: this isn't an actual ratio, because badge points get reduced and the values don't add to 1
-	//For now, this is not a problem, but for stylistic reasons, should eventually be changed.
-	
-	//Regular users buy ratio
-	
-	
-	if (likeNewOn100 == 1 && wormholeOn100 == 1) {
-		// High Level, "Waste Not" Users
-		var abilityPriorityList = [
-			{ id: ABILITIES.WORMHOLE,   ratio: 0.5 },
-			{ id: ABILITIES.LIKE_NEW,   ratio: 1 },
-			{ id: ABILITIES.CRIT,       ratio: 1 },
-			{ id: ABILITIES.TREASURE,   ratio: 1 },
-			{ id: ABILITIES.PUMPED_UP,  ratio: 1 },
-		];
-	} else if (likeNewOn100 == 1) {
-		// Like New Buyers
-		var abilityPriorityList = [
-			{ id: ABILITIES.WORMHOLE,   ratio: 0 },
-			{ id: ABILITIES.LIKE_NEW,   ratio: 1 },
-			{ id: ABILITIES.CRIT,       ratio: 1 },
-			{ id: ABILITIES.TREASURE,   ratio: 1 },
-			{ id: ABILITIES.PUMPED_UP,  ratio: 1 },
-		];
-	} else {
-		// Regular User Buy Ratio
-		var abilityPriorityList = [
-			{ id: ABILITIES.WORMHOLE,   ratio: 1 },
-			{ id: ABILITIES.LIKE_NEW,   ratio: 0 },
-			{ id: ABILITIES.CRIT,       ratio: 1 },
-			{ id: ABILITIES.TREASURE,   ratio: 1 },
-			{ id: ABILITIES.PUMPED_UP,  ratio: 1 },
-		];
-	}
-	
-	var badgePoints = s().m_rgPlayerTechTree.badge_points;
-	var abilityData = s().m_rgTuningData.abilities;
-	var abilityPurchaseQueue = [];
-
-	for (var i = 0; i < abilityPriorityList.length; i++) {
-		var id = abilityPriorityList[i].id;
-		var ratio = abilityPriorityList[i].ratio;
-		var cost = abilityData[id].badge_points_cost;
-		var portion = parseInt(badgePoints * ratio);
-		badgePoints -= portion;
-
-		while(portion >= cost) {
-			abilityPurchaseQueue.push(id);
-			portion -= cost;
-		}
-
-		badgePoints += portion;
-	}
-
-	s().m_rgPurchaseItemsQueue = s().m_rgPurchaseItemsQueue.concat(abilityPurchaseQueue);
-	s().m_UI.UpdateSpendBadgePointsDialog();
-}
 
 function toggleAutoBadgePurchase(event) {
 	var value = enableAutoBadgePurchase;
@@ -943,6 +881,77 @@ function isBossLevel(level) {
 	return level % 100 === 0
 }
 
+function getId(shoppingList, id)
+{
+	for( var i = 0; i < shoppingList.length; i++)
+	{
+		if( shoppingList[i].id == id )
+			return i;
+	}
+	return -1;
+}
+
+function useAutoBadgePurchase()
+{
+	var badgePoints = s().m_rgPlayerTechTree.badge_points;	// 10000000
+	var abilityData = s().m_rgTuningData.abilities;
+	
+	var shoppingList = [
+			{ id: ABILITIES.GOD_MODE,		max:  1000, ataTime:2 },	// 1
+			{ id: ABILITIES.PUMPED_UP,  	max:  1000, ataTime:2 },	// 1
+			{ id: ABILITIES.TREASURE,   	max:  1000, ataTime:2 },	// 2 
+			{ id: ABILITIES.RAINING_GOLD,   max:   100, ataTime:2 },	// 10
+			{ id: ABILITIES.CRIT,       	max:   100, ataTime:2 },	// 10
+			{ id: ABILITIES.WORMHOLE,   	max: 50000, ataTime:2 },	// 100
+			{ id: ABILITIES.LIKE_NEW,   	max: 50000, ataTime:2 },	// 100
+	];
+	
+	if (likeNewOn100 == 1 && wormholeOn100 == 1) {
+		// use standard list
+	} else if (likeNewOn100 == 1) {
+		shoppingList[getId(shoppingList, ABILITIES.WORMHOLE)].max = 100000;
+		shoppingList[getId(shoppingList, ABILITIES.LIKE_NEW)].max = 0;
+	} else {
+		shoppingList[getId(shoppingList, ABILITIES.WORMHOLE)].max = 100000;
+		shoppingList[getId(shoppingList, ABILITIES.LIKE_NEW)].max = 0;
+	}
+	
+		
+	var abilityPurchaseQueue = [];
+	
+	do {
+		var bought = 0;
+		for( var i = 0; i < shoppingList.length; i++ )
+		{
+			if( shoppingList[i].max > 0 )
+			{
+				var id = shoppingList[i].id;
+				var cost = abilityData[id].badge_points_cost;		// 1, 5, 10, 100, 200
+				for( var j = 0; j = shoppingList.ataTime; j++ )
+				{
+					if( cost <= badgePoints )
+					{
+						badgePoints -= cost;
+						bought++;
+						abilityPurchaseQueue.push(id);
+						shoppingList[i].max--;
+					}
+				}
+			}
+		}
+		if( bought === 0 )
+			break;
+	} while (1);
+
+	// spend the rest of the points if any
+	while( badgePoints > 0 ) {
+		abilityPurchaseQueue.push(ABILITIES.PUMPED_UP);
+		badgePoints--;
+	};
+
+	s().m_rgPurchaseItemsQueue = s().m_rgPurchaseItemsQueue.concat(abilityPurchaseQueue);
+	s().m_UI.UpdateSpendBadgePointsDialog();
+}
 
 function updateApproxYOWHClients() {
 	var APPROXIMATE_WH_PER_PERSON_PER_SECOND = 10;
