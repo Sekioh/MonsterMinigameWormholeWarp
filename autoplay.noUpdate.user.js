@@ -1786,6 +1786,13 @@ function useAbilities(level)
 	var enemy = false;
 	var enemyBossHealthPercent = 0;
 
+
+	// If we have spare WH's fire them
+	var wormholeButton = getAbilityButton(ABILITIES.WORMHOLE);
+	if (wormholeButton && wormholeButton.quantity > 15000) {
+		if (bHaveItem(ABILITIES.WORMHOLE)) triggerAbility(ABILITIES.WORMHOLE);
+	}
+
 	// Cripple Monster
 	if(canUseAbility(ABILITIES.CRIPPLE_MONSTER)) {
 		if (level > CONTROL.speedThreshold && level % CONTROL.rainingRounds !== 0 && level % 10 === 0) {
@@ -2046,6 +2053,8 @@ function useAbilities(level)
 		advLog('Max Elemental Damage is purchased and cooled down, triggering it.', 2);
 	}
 
+
+
 	// Resurrect
 	if(level % 10 === 9 && tryUsingAbility(ABILITIES.RESURRECTION)) {
 		// Resurrect is purchased and we are using it.
@@ -2124,11 +2133,15 @@ function tryUsingAbility(itemId, checkInLane, forceAbility) {
 	return true;
 }
 
+function getAbilityButton(ability) {
+	return s().m_rgPlayerTechTree.ability_items.filter(function(item) { return item.ability === ability; })[0]
+}
+
 function triggerAbility(abilityId) {
 	if (abilityId === ABILITIES.WORMHOLE) {
 		// Fire this bad boy off immediately 
 		g_Server.UseAbilities(function() {
-			var wormholeButton = s().m_rgPlayerTechTree.ability_items.filter(function(item) { return item.ability === 26; })[0];
+			var wormholeButton = getAbilityButton(ABILITIES.WORMHOLE);
 			if (wormholeButton) {
 				wormholeButton.quantity--;
 			}
