@@ -1900,8 +1900,12 @@ function useAbilities(level)
 
 	// If we have spare WH's fire them
 	var wormholeButton = getAbilityButton(ABILITIES.WORMHOLE);
-	if (wormholeButton && wormholeButton.quantity > 15000) {
-		if (bHaveItem(ABILITIES.WORMHOLE)) triggerAbility(ABILITIES.WORMHOLE);
+	if (getNextPredictedLevel() % 100 < 90
+			&& wormholeButton
+			&& wormholeButton.quantity > 15000) {
+		if (bHaveItem(ABILITIES.WORMHOLE)) {
+			triggerAbility(ABILITIES.WORMHOLE);
+		}
 	}
 
 	// Cripple Monster
