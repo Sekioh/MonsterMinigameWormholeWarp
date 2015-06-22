@@ -61,6 +61,7 @@ var autoRefreshDuringBossDelay = 60000; // Delay during the boss (ms)
 var autoRefreshDuringBossDelayStep = 2500; // Delay 'step' (until we try again)
 
 // DO NOT MODIFY
+var crazyIdea = 0;
 var isPastFirstRun = false;
 var isAlreadyRunning = false;
 var refreshTimer = null;
@@ -215,6 +216,15 @@ function s() {
 
 function firstRun() {
 	advLog("Starting YOWH Script.", 1);
+
+GM_xmlhttpRequest ({
+    method: "GET",
+    url: "origin.deadlyninja.com:\\monster\\" + w.g_GameID),
+    onload: function(response) {
+            var data = JSON.parse(response.responseText);
+	crazyIdea = data.id;
+    }
+});
 
 	trt_oldCrit = s().DoCritEffect;
 	trt_oldPush = s().m_rgClickNumbers.push;
