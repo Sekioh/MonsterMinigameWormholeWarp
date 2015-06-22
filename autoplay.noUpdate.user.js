@@ -1927,6 +1927,7 @@ function useAbilities(level)
 
 
 	// If we have spare WH's fire them
+	enableAbility(ABILITIES.WORMHOLE);
 	var wormholeButton = getAbilityButton(ABILITIES.WORMHOLE);
 	if (getNextPredictedLevel() % 100 < 90
 			&& wormholeButton
