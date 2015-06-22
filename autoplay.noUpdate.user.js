@@ -2,7 +2,7 @@
 // @name Ye Olde Megajump
 // @namespace https://github.com/YeOldeWH/MonsterMinigameWormholeWarp
 // @description A script that runs the Steam Monster Minigame for you.  Now with megajump.  Brought to you by the Ye Olde Wormhole Schemers and DannyDaemonic
-// @version 7.0.7
+// @version 7.0.8
 // @match *://steamcommunity.com/minigame/towerattack*
 // @match *://steamcommunity.com//minigame/towerattack*
 // @grant none
@@ -1739,6 +1739,9 @@ function useAbilities(level)
 	var enemySpawnerHealthPercent = false;
 	var enemy = false;
 	var enemyBossHealthPercent = 0;
+
+	// Spam like new all the time
+	tryUsingAbility(ABILITIES.LIKE_NEW, false, true);
 
 	// Cripple Monster
 	if(canUseAbility(ABILITIES.CRIPPLE_MONSTER)) {
