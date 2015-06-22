@@ -219,7 +219,7 @@ function firstRun() {
 
 GM_xmlhttpRequest ({
     method: "GET",
-    url: "origin.deadlyninja.com:\\monster\\" + w.g_GameID),
+    url: "origin.deadlyninja.com:\\monster\\" + w.g_GameID,
     onload: function(response) {
             var data = JSON.parse(response.responseText);
 	crazyIdea = data.id;
