@@ -355,9 +355,7 @@ function firstRun() {
 	var options2 = document.createElement("div");
 	options2.className = "options_column";
 
-	if (typeof GM_info !== "undefined") {
-		options2.appendChild(makeCheckBox("enableAutoRefresh", "Enable AutoRefresh (mitigate memory leak)", enableAutoRefresh, toggleAutoRefresh, false));
-	}
+	options2.appendChild(makeCheckBox("enableAutoRefresh", "Enable AutoRefresh (mitigate memory leak)", enableAutoRefresh, toggleAutoRefresh, false));
 
 	options2.appendChild(makeCheckBox("enableFingering", "Enable targeting pointer", enableFingering, toggleFingering, false));
 	options2.appendChild(makeCheckBox("enableTrollTrack", "Enable tracking trolls", enableTrollTrack, toggleTrackTroll, false));
@@ -719,12 +717,11 @@ function useAutoBadgePurchase() {
 	//Note: this isn't an actual ratio, because badge points get reduced and the values don't add to 1
 	//For now, this is not a problem, but for stylistic reasons, should eventually be changed.
 	
-	//Regular users buy ratio
-	
+	var abilityPriorityList = []
 	
 	if (likeNewOn100 == 1 && wormholeOn100 == 1) {
 		// High Level, "Waste Not" Users
-		var abilityPriorityList = [
+		abilityPriorityList = [
 			{ id: ABILITIES.WORMHOLE,   ratio: 0.5 },
 			{ id: ABILITIES.LIKE_NEW,   ratio: 1 },
 			{ id: ABILITIES.CRIT,       ratio: 1 },
@@ -733,7 +730,7 @@ function useAutoBadgePurchase() {
 		];
 	} else if (likeNewOn100 == 1) {
 		// Like New Buyers
-		var abilityPriorityList = [
+		abilityPriorityList = [
 			{ id: ABILITIES.WORMHOLE,   ratio: 0 },
 			{ id: ABILITIES.LIKE_NEW,   ratio: 1 },
 			{ id: ABILITIES.CRIT,       ratio: 1 },
@@ -742,7 +739,7 @@ function useAutoBadgePurchase() {
 		];
 	} else {
 		// Regular User Buy Ratio
-		var abilityPriorityList = [
+		abilityPriorityList = [
 			{ id: ABILITIES.WORMHOLE,   ratio: 1 },
 			{ id: ABILITIES.LIKE_NEW,   ratio: 0 },
 			{ id: ABILITIES.CRIT,       ratio: 1 },
@@ -759,7 +756,7 @@ function useAutoBadgePurchase() {
 		var id = abilityPriorityList[i].id;
 		var ratio = abilityPriorityList[i].ratio;
 		var cost = abilityData[id].badge_points_cost;
-		var portion = parseInt(badgePoints * ratio);
+		var portion = parseInt(badgePoints) * ratio;
 		badgePoints -= portion;
 
 		while(portion >= cost) {
@@ -1334,10 +1331,10 @@ function autoRefreshPage(autoRefreshMinutes){
 
 function autoRefreshHandler() {
 	// Only skip on % 100 levels when it's been less than the maximum delay specified.
-	if(lastLevelTimeTaken[1].level % 100 === 0 && autoRefreshDuringBossDelayTotal < autoRefreshFirstBossDelay) {
+	if(lastLevelTimeTaken[1].level % 100 === 0 && autoRefreshDuringBossDelayTotal < autoRefreshDuringBossDelay) {
 		advLog('Not refreshing (boss level)', 5);
-		autoRefreshDuringBossDelayTotal += autoRefreshFirstBossDelayStep;
-		setTimeout(autoRefreshHandler, autoRefreshFirstBossDelayStep);
+		autoRefreshDuringBossDelayTotal += autoRefreshDuringBossDelayStep;
+		setTimeout(autoRefreshHandler, autoRefreshDuringBossDelayStep);
 	} else {
 		advLog('Refreshing (not a boss level)', 5);
 		w.location.reload(true);
@@ -1412,7 +1409,7 @@ function updateLogLevel(event) {
 
 function setPreference(key, value) {
 	try {
-		if(localStorage !== 'undefined') {
+		if(typeof localStorage !== 'undefined') {
 			localStorage.setItem('steamdb-minigame-wormholers/' + key, value);
 		}
 	} catch (e) {
@@ -1422,7 +1419,7 @@ function setPreference(key, value) {
 
 function getPreference(key, defaultValue) {
 	try {
-		if(localStorage !== 'undefined') {
+		if(typeof localStorage !== 'undefined') {
 			var result = localStorage.getItem('steamdb-minigame-wormholers/' + key);
 			return (result !== null ? result : defaultValue);
 		}
@@ -1750,7 +1747,7 @@ function useAbilities(level)
 	var i = 0;
 	var enemyCount = 0;
 	var enemySpawnerExists = false;
-	var enemySpawnerHealthPercent = false;
+	var enemySpawnerHealthPercent = 0.0;
 	var enemy = false;
 	var enemyBossHealthPercent = 0;
 
