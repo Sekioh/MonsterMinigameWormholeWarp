@@ -19,8 +19,8 @@
 var clickRate = 20;
 var logLevel = 1; // 5 is the most verbose, 0 disables all log
 
-var wormholeOn100 = 0;
-var likeNewOn100 = 1;
+var wormholeOn100 = 1;
+var likeNewOn100 = 0;
 var medicOn100 = 1;
 var clicksOnBossLevel = 0;
 var upgThreshold = 100;
