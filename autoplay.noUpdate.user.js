@@ -49,7 +49,7 @@ var enableChen = getPreferenceBoolean("enableChen", false);
 
 var autoRefreshMinutes = 30;
 var autoRefreshMinutesRandomDelay = 10;
-var autoRefreshSecondsCheckLoadedDelay = 30;
+var autoRefreshSecondsCheckLoadedDelay = getPreference("autoRefreshSecondsCheckLoadedDelay",30);
 
 var predictTicks = 0;
 var predictJumps = 0;
@@ -362,6 +362,8 @@ function firstRun() {
 	options2.appendChild(makeCheckBox("enableFingering", "Enable targeting pointer", enableFingering, toggleFingering, false));
 	options2.appendChild(makeCheckBox("enableTrollTrack", "Enable tracking trolls", enableTrollTrack, toggleTrackTroll, false));
 	options2.appendChild(makeNumber("setLogLevel", "Change the log level (you shouldn't need to touch this)", logLevel, 0, 5, updateLogLevel));
+	options2.appendChild(makeNumber("autoRefreshSecondsCheckLoadedDelay", "Change delay of full load test (in seconds)",
+		autoRefreshSecondsCheckLoadedDelay,5,300,updateCheckLoadedDelay));
 
 	info_box.appendChild(options2);
 
@@ -1409,6 +1411,13 @@ function toggleTrackTroll(event) {
 function updateLogLevel(event) {
 	if(event !== undefined) {
 		logLevel = event.target.value;
+	}
+}
+
+function updateCheckLoadedDelay(event) {
+	if(event !== undefined) {
+		autoRefreshSecondsCheckLoadedDelay = event.target.value;
+		setPreference("autoRefreshSecondsCheckLoadedDelay", autoRefreshSecondsCheckLoadedDelay);
 	}
 }
 
