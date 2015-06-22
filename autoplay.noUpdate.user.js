@@ -2,7 +2,7 @@
 // @name Ye Olde Megajump
 // @namespace https://github.com/YeOldeWH/MonsterMinigameWormholeWarp
 // @description A script that runs the Steam Monster Minigame for you.  Now with megajump.  Brought to you by the Ye Olde Wormhole Schemers and DannyDaemonic
-// @version 7.0.7
+// @version 8.0.0
 // @match *://steamcommunity.com/minigame/towerattack*
 // @match *://steamcommunity.com//minigame/towerattack*
 // @grant none
@@ -66,12 +66,16 @@ var isAlreadyRunning = false;
 var refreshTimer = null;
 var currentClickRate = enableAutoClicker ? clickRate : 0;
 var lastLevel = 0;
-var lastLevelTimeTaken = [{
-							level: 0,
-							levelsGained: 0,
-							timeStarted: 0,
-							timeTakenInSeconds: 0
-						 }];
+var lastLevelInfo = [{
+						level: 0,
+						levelsGained: 0,
+						timeStarted: 0,
+						timeTakenInSeconds: 0
+					}];
+var _previousEnemyHP = [0];
+var _previousDPS = [0];
+var _tickInfo = [];
+
 var approxYOWHClients = 0;
 var skipsLastJump = 0;
 var updateSkips = false;
@@ -493,22 +497,152 @@ function getTimeleft() {
 	return 61;
 }
 
-function updateLevelTimeTracker() {
-	if (lastLevelTimeTaken[0].level !== getGameLevel()) {
-		lastLevelTimeTaken.unshift({level: getGameLevel(),
-									levelsGained: -1,
-									timeStarted: s().m_rgGameData.timestamp,
-									timeTakenInSeconds: -1});
+function unshiftIntoCircularBuffer(buffer, bufferSize, value) {
+	buffer.unshift(value);
 
-		var previousLevel = lastLevelTimeTaken[1];
+	if (buffer.length > bufferSize) {
+		buffer.pop();
+	}
+}
+
+var _jumpHistory = [];
+var defaultEntryRemoved = false;
+function updateLevelAndDPSTracker() {
+	var levelHasChanged = lastLevelInfo[0].level !== getGameLevel();
+	if (levelHasChanged) {
+		unshiftIntoCircularBuffer(lastLevelInfo, 1000, 
+							{	level: 				getGameLevel(),
+								levelsGained: 		-1,
+								timeStarted: 		s().m_rgGameData.timestamp,
+								timeTakenInSeconds: -1,
+								total_enemy_hp: 	getTotalLevelEnemyStats().max_hp,
+								level_dps: 			0
+							});
+
+		var previousLevel = lastLevelInfo[1];
 
 		previousLevel.levelsGained = getGameLevel() - previousLevel.level;
 		previousLevel.timeTakenInSeconds = s().m_rgGameData.timestamp - previousLevel.timeStarted;
 	}
 
-	if (lastLevelTimeTaken.length > 10) {
-		lastLevelTimeTaken.pop();
+	// This is a weird place for this I know, but I couldn't think of anywhere better in my sleep deprived state
+	updateCurrentDPS(levelHasChanged);
+
+	if (levelHasChanged) {
+		previousLevel.level_dps = getAverageDPS();
+
+		if (!defaultEntryRemoved) {
+			defaultEntryRemoved = true;
+			lastLevelInfo.pop();
 	}
+	}
+}
+
+function updateCurrentDPS(levelHasChanged) {
+	var skipped_dps = 0;
+
+	if (levelHasChanged) {
+		var previousLevel = lastLevelInfo[1];
+		var skipped_dps = (previousLevel.levelsGained * previousLevel.total_enemy_hp) / previousLevel.timeTakenInSeconds;
+	}
+
+	var current_hp = getTotalLevelEnemyStats().current_hp;
+	var dps = Math.max(current_hp - _previousEnemyHP[0], 0);
+
+	unshiftIntoCircularBuffer(_previousDPS, 10, (dps + skipped_dps) || 0);
+	unshiftIntoCircularBuffer(_previousEnemyHP, 10, current_hp);
+}
+
+function getAverageDPS() {
+	return _previousDPS.reduce(function (a, b) {
+			return a + b;
+		}) / _previousDPS.length;
+}
+
+function getTotalLevelEnemyStats() {
+	var current_hp = 0;
+	var max_hp = 0;
+	s().m_rgGameData.lanes.map(function (lane) {
+		lane.enemies.map(function(enemy) {
+    		current_hp += enemy.hp
+    		max_hp += enemy.max_hp
+  		});
+	});
+
+	return {current_hp: current_hp, max_hp: max_hp}
+}
+
+var predictedLevelHits = 0;
+var predictedLevelMisses = 0;
+function updateNextLevelPrediction() {
+	unshiftIntoCircularBuffer(_tickInfo, 1000, 
+								{
+									tick: s().m_rgGameData.timestamp,
+									level: getGameLevel(),
+									tickVelocity: levelsPerSec(),
+									predictedLevel: getNextPredictedLevel()
+								});
+
+	var currentLevel = _tickInfo[0].level;
+	var predictedCurrentLevel = (_tickInfo[1] && _tickInfo[1].predictedLevel) || 0;
+
+	if (currentLevel !== predictedCurrentLevel) {
+		console.log("Prediction off by ", currentLevel - predictedCurrentLevel);
+		predictedLevelMisses++;
+	} else {
+		predictedLevelHits++;
+	}
+}
+
+function getPredictedLevelAccuracy() {
+	return  (predictedLevelHits / (predictedLevelHits + predictedLevelMisses))
+}
+
+function getLevelForTick(tick) {
+	var info = _tickInfo.filter(function(i) { return i.tick === tick; })[0];
+
+	if (info) {
+		return info.level;
+	}
+
+	return 0;
+}
+
+function averageWormholesPerBoss() {
+	var bosses = lastLevelInfo.filter(function(i) { return isBossLevel(i.level); })
+	return bosses.map(function(i) { return i.levelsGained }).reduce(function(curr, level) { return curr + level}, 0) / bosses.length
+}
+
+function averageBossesPerSecond() {
+	var bosses = lastLevelInfo.filter(function(i) { return isBossLevel(i.level); })
+	if (bosses.length > 1) {
+		return (bosses.length / (bosses[0].timeStarted - bosses[bosses.length-1].timeStarted));
+	}
+
+	return 0;
+}
+
+var scriptStartedInfo = {level: 0, time: 0};
+function getLevelsPerSecondSinceStart() {
+	return (getGameLevel() - scriptStartedInfo.level) / (s().m_rgGameData.timestamp - scriptStartedInfo.time);
+}
+
+function getNextPredictedLevel() {
+	var levelVelocity = Math.round(_tickInfo
+			.filter(function(i) { return i.level === getGameLevel(); })
+			.map(function(i) { return i.tickVelocity; })
+			.reduce(function(curr, velocity) { return curr + velocity; }, 0));
+
+	var wormholes = $J.unique(
+						s().m_rgActionLog
+						.filter(function(entry) { return entry.ability === ABILITIES.WORMHOLE; })
+						.filter(function(entry) { return getLevelForTick(entry.time) === getGameLevel(); })
+						.map(function(entry) { return entry.actor + ":" + entry.time; })
+					).reduce(function(curr, key) {
+						return curr + 1;
+					}, 0);
+
+	return getGameLevel() + levelVelocity + wormholes;
 }
 
 function MainLoop() {
@@ -522,8 +656,14 @@ function MainLoop() {
 	}
 
 	var level = getGameLevel();
-	updateLevelTimeTracker();
+	updateLevelAndDPSTracker();
 	updateApproxYOWHClients();
+	updateNextLevelPrediction();
+
+	if (scriptStartedInfo.level === 0) {
+		scriptStartedInfo.level = level;
+		scriptStartedInfo.time = s().m_rgGameData.timestamp;
+	}
 
 	if (!isAlreadyRunning) {
 		isAlreadyRunning = true;
@@ -807,15 +947,15 @@ function isBossLevel(level) {
 function updateApproxYOWHClients() {
 	var APPROXIMATE_WH_PER_PERSON_PER_SECOND = 10;
 
-	if (lastLevelTimeTaken.length < 2) {
+	if (lastLevelInfo.length < 2) {
 		return;
 	}
 
-	var lastLevel = lastLevelTimeTaken[1].level;
+	var lastLevel = lastLevelInfo[1].level;
 
 	if (isBossLevel(lastLevel)) {
 		var levelsJumped = getGameLevel() - lastLevel;
-		var bossLevelTime = lastLevelTimeTaken[1].timeTakenInSeconds;
+		var bossLevelTime = lastLevelInfo[1].timeTakenInSeconds;
 
 		var possiblyInaccurateCount = Math.round(levelsJumped / (bossLevelTime * APPROXIMATE_WH_PER_PERSON_PER_SECOND));
 
@@ -825,47 +965,47 @@ function updateApproxYOWHClients() {
 			console.log("Inaccurate count of YOWH Clients: ",possiblyInaccurateCount,
 						", levelsJumped: ", levelsJumped,
 						", bossLevelTime: ", bossLevelTime,
-						", lastLevelTimeTaken", lastLevelTimeTaken);
+						", lastLevelInfo", lastLevelInfo);
 		}
 	}
 }
 
 function levelsPerSecRaw() {
-	if (lastLevelTimeTaken.length < 2) {
+	if (lastLevelInfo.length < 2) {
 		return 0;
 	}
 
 	var timeSpentOnBosses = 0;
 	var levelsGainedFromBosses = 0;
 
-	lastLevelTimeTaken.filter(function(levelInfo) {
+	lastLevelInfo.filter(function(levelInfo) {
 		return isBossLevel(levelInfo.level);
 	}).map(function(levelInfo) {
 		timeSpentOnBosses += levelInfo.timeTakenInSeconds;
 		levelsGainedFromBosses += levelInfo.levelsGained;
 	})
 
-	return (((getGameLevel() - lastLevelTimeTaken.slice(-1).pop().level - levelsGainedFromBosses)
-			/ (s().m_rgGameData.timestamp - lastLevelTimeTaken.slice(-1).pop().timeStarted - timeSpentOnBosses)) * 1000 ) / 1000;
+	return (((getGameLevel() - lastLevelInfo.slice(-1).pop().level - levelsGainedFromBosses)
+			/ (s().m_rgGameData.timestamp - lastLevelInfo.slice(-1).pop().timeStarted - timeSpentOnBosses)) * 1000 ) / 1000;
 }
 
 function levelsPerSec() {
-	if (lastLevelTimeTaken.length < 2) {
+	if (lastLevelInfo.length < 2) {
 		return 0;
 	}
 
 	var timeSpentOnBosses = 0;
 	var levelsGainedFromBosses = 0;
 
-	lastLevelTimeTaken.filter(function(levelInfo) {
+	lastLevelInfo.slice(0, 10).filter(function(levelInfo) {
 		return isBossLevel(levelInfo.level);
 	}).map(function(levelInfo) {
 		timeSpentOnBosses += levelInfo.timeTakenInSeconds;
 		levelsGainedFromBosses += levelInfo.levelsGained;
 	})
 
-	return Math.round(((getGameLevel() - lastLevelTimeTaken.slice(-1).pop().level - levelsGainedFromBosses)
-			/ (s().m_rgGameData.timestamp - lastLevelTimeTaken.slice(-1).pop().timeStarted - timeSpentOnBosses)) * 1000 ) / 1000;
+	return ((getGameLevel() - lastLevelInfo.slice(0, 10).slice(-1).pop().level - levelsGainedFromBosses)
+			/ (s().m_rgGameData.timestamp - lastLevelInfo.slice(0,10).slice(-1).pop().timeStarted - timeSpentOnBosses) * 1000 ) / 1000;
 }
 
 
@@ -1761,7 +1901,6 @@ function goToLaneWithBestTarget(level) {
 		enableAbility(ABILITIES.RAINING_GOLD);
 	}
 
-	// Completely disable Reflect
 	disableAbility(ABILITIES.REFLECT_DAMAGE);
 	disableAbility(ABILITIES.TACTICAL_NUKE);
 }
@@ -1785,6 +1924,18 @@ function useAbilities(level)
 	var enemySpawnerHealthPercent = false;
 	var enemy = false;
 	var enemyBossHealthPercent = 0;
+
+
+	// If we have spare WH's fire them
+	enableAbility(ABILITIES.WORMHOLE);
+	var wormholeButton = getAbilityButton(ABILITIES.WORMHOLE);
+	if (getNextPredictedLevel() % 100 < 90
+			&& wormholeButton
+			&& wormholeButton.quantity > 15000) {
+		if (bHaveItem(ABILITIES.WORMHOLE)) {
+			triggerAbility(ABILITIES.WORMHOLE);
+		}
+	}
 
 	// Cripple Monster
 	if(canUseAbility(ABILITIES.CRIPPLE_MONSTER)) {
@@ -2046,6 +2197,8 @@ function useAbilities(level)
 		advLog('Max Elemental Damage is purchased and cooled down, triggering it.', 2);
 	}
 
+
+
 	// Resurrect
 	if(level % 10 === 9 && tryUsingAbility(ABILITIES.RESURRECTION)) {
 		// Resurrect is purchased and we are using it.
@@ -2124,11 +2277,15 @@ function tryUsingAbility(itemId, checkInLane, forceAbility) {
 	return true;
 }
 
+function getAbilityButton(ability) {
+	return s().m_rgPlayerTechTree.ability_items.filter(function(item) { return item.ability === ability; })[0]
+}
+
 function triggerAbility(abilityId) {
 	if (abilityId === ABILITIES.WORMHOLE) {
 		// Fire this bad boy off immediately 
 		g_Server.UseAbilities(function() {
-			var wormholeButton = s().m_rgPlayerTechTree.ability_items.filter(function(item) { return item.ability === 26; })[0];
+			var wormholeButton = getAbilityButton(ABILITIES.WORMHOLE);
 			if (wormholeButton) {
 				wormholeButton.quantity--;
 			}
@@ -2433,7 +2590,12 @@ function updateLevelInfoTitle(level)
 	var exp_lvl = expectedLevel(level);
 	var rem_time = countdown(exp_lvl.remaining_time);
 
-	ELEMENTS.ExpectedLevel.textContent = 'Level: ' + level + ', Levels/second: ' + levelsPerSec() + ', YOWHers: ' + (approxYOWHClients > 0 ? approxYOWHClients : '??');
+	ELEMENTS.ExpectedLevel.textContent = 	'Level: ' + level + 
+											', Levels/second: ' + Math.round(levelsPerSec() * 1000) / 1000 + 
+											', Prediction Accuracy: ' + Math.round(getPredictedLevelAccuracy() * 100) + "%" +
+											', Version Levels/s: ' + Math.round(getLevelsPerSecondSinceStart()) +
+											', WH/Boss: ' + Math.round(averageWormholesPerBoss()) +
+											', Seconds/Boss\': ' + Math.round(1 / averageBossesPerSecond())
 	ELEMENTS.RemainingTime.textContent = 'Remaining Time: ' + rem_time.hours + ' hours, ' + rem_time.minutes + ' minutes';
 	ELEMENTS.WormholesJumped.textContent = 'Wormhole Activity: ' + (skipsLastJump.toLocaleString ? skipsLastJump.toLocaleString() : skipsLastJump);
 }
